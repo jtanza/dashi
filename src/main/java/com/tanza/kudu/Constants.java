@@ -31,7 +31,9 @@ public interface Constants {
 
     enum StatusCode {
         OK("OK", 200), BAD_REQUEST("Bad Request", 400),
-        PAYLOAD_TOO_LARGE("Payload Too Large", 413);
+        PAYLOAD_TOO_LARGE("Payload Too Large", 413),
+        NOT_FOUND("Not Found", 404),
+        INTERNAL_SERVER_ERROR("Internal Server Error", 500);
 
         private final String reasonPhrase;
         private final int code;

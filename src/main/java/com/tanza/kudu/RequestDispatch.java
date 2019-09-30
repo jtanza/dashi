@@ -2,35 +2,34 @@ package com.tanza.kudu;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
+import java.util.Optional;
 
 /**
  * @author jtanza
  */
 public class RequestDispatch {
 
-    private final Map<String, Function<Request, Response>> handlers;
-    private Function<Request, Response> defaultHandler;
+    private final Map<String, Handler> handlers;
+    private Handler defaultHandler;
 
     public RequestDispatch() {
         this.handlers = new HashMap<>();
     }
 
-    public RequestDispatch addDefault(Function<Request, Response> defaultHandler) {
+    public RequestDispatch addDefault(Handler defaultHandler) {
         this.defaultHandler = defaultHandler;
         return this;
     }
 
-    public RequestDispatch addHandler(String path, Function<Request, Response> handler) {
-        handlers.put(path, handler);
+    public RequestDispatch addHandler(Handler handler) {
+        handlers.put(handler.getPath(), handler);
         return this;
     }
 
-    public Function<Request, Response> handlerFor(String path) {
+    public Optional<Handler> handlerFor(String path) {
         if (handlers.containsKey(path)) {
-            return handlers.get(path);
+            return Optional.ofNullable(handlers.get(path));
         }
-        return Objects.isNull(defaultHandler) ? null : defaultHandler;
+        return defaultHandler == null ? Optional.empty() : Optional.of(defaultHandler);
     }
 }

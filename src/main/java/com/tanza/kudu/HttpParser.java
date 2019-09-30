@@ -2,12 +2,14 @@ package com.tanza.kudu;
 
 import com.tanza.kudu.Constants.Method;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.apache.commons.lang3.StringUtils;
+import lombok.Getter;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Map;
 
 import static com.tanza.kudu.Constants.Header.*;
 import static com.tanza.kudu.Constants.Message.CRLF;
@@ -29,7 +31,7 @@ public class HttpParser {
             String header = headerLine[0];
 
             //CRLF without header marks the end of header section
-            if (StringUtils.isEmpty(header)) {
+            if (Utils.isEmpty(header)) {
                 i++;
                 break;
             }
@@ -53,13 +55,15 @@ public class HttpParser {
 
     private static URL parseUrl(RequestLine requestLine, Headers headers) {
         try {
+            //always http for now
             return new URL("http://" + headers.getValue(HOST) + requestLine.getRequestUri());
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    @Data
+    @Getter
+    @AllArgsConstructor
     private static class RequestLine {
         private final Method method;
         private final String requestUri;

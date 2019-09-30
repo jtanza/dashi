@@ -1,7 +1,6 @@
 package com.tanza.kudu;
 
 import com.tanza.kudu.Constants.StatusCode;
-
 import lombok.EqualsAndHashCode;
 
 import java.time.Instant;
@@ -37,8 +36,12 @@ public class Response {
         return new Response(exception.getStatusCode(), new Headers(), null);
     }
 
+    public static Response from(StatusCode statusCode) {
+        return new Response(statusCode, Headers.EMPTY_HEADER, null);
+    }
+
     public static Response ok(String body) {
-        return new Response(OK, new Headers(), body);
+        return new Response(OK, Headers.EMPTY_HEADER, body);
     }
 
     public static Response ok() {
@@ -46,18 +49,10 @@ public class Response {
     }
 
     public static Response badRequest() {
-        return new Response(BAD_REQUEST, new Headers(), null);
+        return new Response(BAD_REQUEST, Headers.EMPTY_HEADER, null);
     }
 
-    private String getContentLength() {
-        return body == null ? "0" : String.valueOf(body.length() + 1);
-    }
-
-    private String formatStatusLine() {
-        return VERSION + statusCode + CRLF;
-    }
-
-    public void addReqResponseHeaders() {
+    private void addReqResponseHeaders() {
         if (!headers.containsHeader(CONTENT_LENGTH)) {
             headers.addHeader(CONTENT_LENGTH, getContentLength());
         }
@@ -69,10 +64,18 @@ public class Response {
         }
     }
 
+    private String getContentLength() {
+        return body == null ? "0" : String.valueOf(body.length() + 1);
+    }
+
+    private String formatStatusLine() {
+        return VERSION + statusCode + CRLF;
+    }
+
     @Override
     public String toString() {
         addReqResponseHeaders();
         String resp = formatStatusLine() + headers.toString();
-        return body == null ? resp : resp + body;
+        return body == null ? resp : resp + CRLF + body;
     }
 }

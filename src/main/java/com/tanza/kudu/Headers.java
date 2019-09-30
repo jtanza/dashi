@@ -1,5 +1,7 @@
 package com.tanza.kudu;
 
+import lombok.EqualsAndHashCode;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,7 +10,10 @@ import static com.tanza.kudu.Constants.Message.*;
 /**
  * @author jtanza
  */
+@EqualsAndHashCode
 public class Headers {
+    public static final Headers EMPTY_HEADER = new Headers();
+
     private final Map<String, String> headers;
 
     public Headers() {
@@ -34,7 +39,6 @@ public class Headers {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         headers.forEach((k, v) -> builder.append(k).append(": ").append(v).append(CRLF));
-        builder.append(CRLF);
         return builder.toString();
     }
 }

@@ -4,13 +4,11 @@ import java.io.IOException;
 
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Objects;
-import java.util.function.Function;
+import java.util.Optional;
 
 /**
  * @author jtanza
  */
-
 public class Server {
     private static final int DEFAULT_PORT = 80;
 
@@ -39,9 +37,10 @@ public class Server {
                 System.out.println(requestStr);
                 Request request = Request.from(requestStr);
 
-                Function<Request, Response> handler = dispatch.handlerFor(request.getUrl().getPath());
-                if (!Objects.isNull(handler)) {
-                    Response response = handler.apply(request);
+                Optional<Handler> handler = dispatch.handlerFor(request.getUrl().getPath());
+
+                if (handler.isPresent()) {
+                    Response response = handler.get().getAction().apply(request);
                     socketBuffer.write(response.toString());
                 }
             } catch (RequestException e) {
