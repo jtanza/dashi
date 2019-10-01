@@ -37,7 +37,7 @@ public class Server {
                 System.out.println(requestStr);
                 Request request = Request.from(requestStr);
 
-                Optional<Handler> handler = dispatch.handlerFor(request.getUrl().getPath());
+                Optional<Handler> handler = dispatch.handlerFor(request.getMethod(), request.getUrl().getPath());
 
                 if (handler.isPresent()) {
                     Response response = handler.get().getAction().apply(request);

@@ -1,5 +1,8 @@
 package com.tanza.kudu;
 
+import com.tanza.kudu.Constants.Method;
+import lombok.Data;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -9,7 +12,7 @@ import java.util.Optional;
  */
 public class RequestDispatch {
 
-    private final Map<String, Handler> handlers;
+    private final Map<ResourceId, Handler> handlers;
     private Handler defaultHandler;
 
     public RequestDispatch() {
@@ -22,14 +25,21 @@ public class RequestDispatch {
     }
 
     public RequestDispatch addHandler(Handler handler) {
-        handlers.put(handler.getPath(), handler);
+        handlers.put(new ResourceId(handler.getMethod(), handler.getPath()), handler);
         return this;
     }
 
-    public Optional<Handler> handlerFor(String path) {
-        if (handlers.containsKey(path)) {
-            return Optional.ofNullable(handlers.get(path));
+    public Optional<Handler> handlerFor(Method method, String path) {
+        ResourceId id = new ResourceId(method, path);
+        if (handlers.containsKey(id)) {
+            return Optional.ofNullable(handlers.get(id));
         }
         return defaultHandler == null ? Optional.empty() : Optional.of(defaultHandler);
+    }
+
+    @Data
+    private static class ResourceId {
+        private final Method method;
+        private final String path;
     }
 }

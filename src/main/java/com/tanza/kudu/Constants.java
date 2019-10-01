@@ -22,7 +22,7 @@ public interface Constants {
     }
 
     enum Method {
-        GET, POST;
+        GET, POST, DELETE, PUT;
 
         public static Method from(@NonNull String method) {
             return Enum.valueOf(Method.class, method.trim().toUpperCase());
@@ -30,8 +30,8 @@ public interface Constants {
     }
 
     enum StatusCode {
-        OK("OK", 200), BAD_REQUEST("Bad Request", 400),
-        PAYLOAD_TOO_LARGE("Payload Too Large", 413),
+        OK("OK", 200), NO_CONTENT("No Content", 204),
+        BAD_REQUEST("Bad Request", 400), PAYLOAD_TOO_LARGE("Payload Too Large", 413),
         NOT_FOUND("Not Found", 404),
         INTERNAL_SERVER_ERROR("Internal Server Error", 500);
 
