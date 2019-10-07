@@ -72,10 +72,14 @@ public class Response {
         return VERSION + statusCode + CRLF;
     }
 
+    private String formatBody() {
+        return body.endsWith("\n") ? body : body + "\n";
+    }
+
     @Override
     public String toString() {
         addReqResponseHeaders();
-        String resp = formatStatusLine() + headers.toString();
-        return body == null ? resp : resp + CRLF + body;
+        String resp = formatStatusLine() + headers.toString() + CRLF;
+        return body == null ? resp : resp + formatBody();
     }
 }

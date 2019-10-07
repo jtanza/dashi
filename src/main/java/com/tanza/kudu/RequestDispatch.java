@@ -37,6 +37,10 @@ public class RequestDispatch {
         return defaultHandler == null ? Optional.empty() : Optional.of(defaultHandler);
     }
 
+    /**
+     * POJO to be used as keys to differentiate
+     * requests paths by path + request method
+     */
     @Data
     private static class ResourceId {
         private final Method method;

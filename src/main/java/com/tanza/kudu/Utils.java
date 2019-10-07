@@ -14,10 +14,6 @@ public class Utils {
         throw new AssertionError();
     }
 
-    public static boolean isEmpty(String value) {
-        return value == null || value.isEmpty();
-    }
-
     /**
      * N.B. {@param path} must represent fully qualified path of resource
      * on disk

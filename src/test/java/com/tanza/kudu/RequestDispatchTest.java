@@ -43,6 +43,7 @@ public class RequestDispatchTest {
 
     @Test
     public void testRequestMethods() {
+        System.out.println(Response.ok().toString());
         final String userResource = "/users/12345";
 
         RequestDispatch dispatch = new RequestDispatch()

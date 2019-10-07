@@ -5,6 +5,7 @@ import com.tanza.kudu.Constants.Method;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -31,7 +32,7 @@ public class HttpParser {
             String header = headerLine[0];
 
             //CRLF without header marks the end of header section
-            if (Utils.isEmpty(header)) {
+            if (StringUtils.isEmpty(header)) {
                 i++;
                 break;
             }

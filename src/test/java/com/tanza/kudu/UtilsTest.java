@@ -1,6 +1,7 @@
 package com.tanza.kudu;
 
 import com.tanza.kudu.Constants.StatusCode;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -12,10 +13,10 @@ public class UtilsTest {
 
     @Test
     public void testIsEmpty() {
-        assertFalse(Utils.isEmpty("foo"));
-        assertFalse(Utils.isEmpty(" "));
-        assertTrue(Utils.isEmpty(null));
-        assertTrue(Utils.isEmpty(""));
+        assertFalse(StringUtils.isEmpty("foo"));
+        assertFalse(StringUtils.isEmpty(" "));
+        assertTrue(StringUtils.isEmpty(null));
+        assertTrue(StringUtils.isEmpty(""));
     }
 
     @Test
