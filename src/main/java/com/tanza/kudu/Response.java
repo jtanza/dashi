@@ -3,6 +3,7 @@ package com.tanza.kudu;
 import com.tanza.kudu.Constants.StatusCode;
 import lombok.EqualsAndHashCode;
 
+import java.nio.ByteBuffer;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -81,5 +82,9 @@ public class Response {
         addReqResponseHeaders();
         String resp = formatStatusLine() + headers.toString() + CRLF;
         return body == null ? resp : resp + formatBody();
+    }
+
+    public ByteBuffer toByteBuffer() {
+        return ByteBuffer.wrap(toString().getBytes());
     }
 }

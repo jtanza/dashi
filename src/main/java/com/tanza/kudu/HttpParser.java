@@ -3,14 +3,12 @@ package com.tanza.kudu;
 import com.tanza.kudu.Constants.Method;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Map;
 
 import static com.tanza.kudu.Constants.Header.*;
 import static com.tanza.kudu.Constants.Message.CRLF;

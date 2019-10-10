@@ -16,7 +16,7 @@ public class Request {
     private final Headers headers;
     private final String body;
 
-    public static Request from(String request) {
+    public static Request parseRequest(String request) {
         return HttpParser.parseRequest(request);
     }
 }

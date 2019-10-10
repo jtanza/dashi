@@ -12,11 +12,11 @@ import static org.junit.Assert.*;
 /**
  * @author jtanza
  */
-public class RequestDispatchTest {
+public class RequestHandlersTest {
 
     @Test
     public void testDispatch() {
-        RequestDispatch dispatch = new RequestDispatch()
+        RequestHandlers dispatch = new RequestHandlers()
             .addHandler(Handler.asGet("/", r -> Response.ok("FOOBAR")))
             .addHandler(Handler.asGet("/query", r -> Response.ok("BAZBUCK")))
             .addDefault(Handler.defaultHandler(r -> Response.badRequest()));
@@ -46,7 +46,7 @@ public class RequestDispatchTest {
         System.out.println(Response.ok().toString());
         final String userResource = "/users/12345";
 
-        RequestDispatch dispatch = new RequestDispatch()
+        RequestHandlers dispatch = new RequestHandlers()
             .addHandler(new Handler(Method.PUT,    userResource, r -> Response.ok()))
             .addHandler(new Handler(Method.DELETE, userResource, r -> Response.from(NOT_FOUND)));
 

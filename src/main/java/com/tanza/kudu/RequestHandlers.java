@@ -10,21 +10,21 @@ import java.util.Optional;
 /**
  * @author jtanza
  */
-public class RequestDispatch {
+public class RequestHandlers {
 
     private final Map<ResourceId, Handler> handlers;
     private Handler defaultHandler;
 
-    public RequestDispatch() {
+    public RequestHandlers() {
         this.handlers = new HashMap<>();
     }
 
-    public RequestDispatch addDefault(Handler defaultHandler) {
+    public RequestHandlers addDefault(Handler defaultHandler) {
         this.defaultHandler = defaultHandler;
         return this;
     }
 
-    public RequestDispatch addHandler(Handler handler) {
+    public RequestHandlers addHandler(Handler handler) {
         handlers.put(new ResourceId(handler.getMethod(), handler.getPath()), handler);
         return this;
     }
