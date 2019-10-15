@@ -7,22 +7,23 @@ import lombok.Getter;
 import java.util.function.Function;
 
 /**
+ *
  * @author jtanza
  */
 @Getter
 @AllArgsConstructor
-public class Handler {
+public class RequestHandler {
     private static final Method DEFAULT_METHOD = Method.GET;
 
     private final Method method;
     private final String path;
     private final Function<Request, Response> action;
 
-    public static Handler asGet(String path, Function<Request, Response> action) {
-        return new Handler(Method.GET, path, action);
+    public static RequestHandler asGet(String path, Function<Request, Response> action) {
+        return new RequestHandler(Method.GET, path, action);
     }
 
-    public static Handler defaultHandler(Function<Request, Response> action) {
-        return new Handler(null, null, action);
+    public static RequestHandler defaultHandler(Function<Request, Response> action) {
+        return new RequestHandler(null, null, action);
     }
 }

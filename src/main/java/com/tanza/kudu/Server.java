@@ -4,15 +4,13 @@ import lombok.Data;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
-import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author jtanza
@@ -23,24 +21,21 @@ public class Server {
     private static final int TIME_OUT_MS = 1000;
 
     private final int port;
-    private final RequestHandlers handlers;
-    private final RequestProcessor requestProcessor;
+    private final RequestDispatcher requestDispatcher;
 
-    public Server(int port, RequestHandlers handlers) {
+    public Server(int port, RequestDispatcher requestDispatcher) {
         this.port = port;
-        this.handlers = handlers;
-        this.requestProcessor = new RequestProcessor();
+        this.requestDispatcher = requestDispatcher;
     }
 
-    public Server(RequestHandlers handlers) {
+    public Server(RequestDispatcher requestDispatcher) {
         this.port = DEFAULT_PORT;
-        this.handlers = handlers;
-        this.requestProcessor = new RequestProcessor();
+        this.requestDispatcher = requestDispatcher;
     }
 
     public void serve() throws IOException {
-        Connection connection = Connection.openConnection();
-        Selector selector = connection.getSelector();
+        ServerConnection serverConnection = ServerConnection.openConnection();
+        Selector selector = serverConnection.getSelector();
 
         while (true) {
             selector.select(TIME_OUT_MS);
@@ -58,18 +53,13 @@ public class Server {
         registerChannel(key, selector);
     }
 
-    private void write(SelectionKey key) {
-        Optional<Response> response = requestProcessor.getResponse(key);
-        if (response.isPresent()) {
-            try {
-                SocketChannel channel = (SocketChannel) key.channel();
-                channel.write(response.get().toByteBuffer());
-                closeConnection(key);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            key.interestOps(SelectionKey.OP_WRITE);
+    private void write(SelectionKey key, Response response) {
+        try {
+            SocketChannel channel = (SocketChannel) key.channel();
+            channel.write(response.toByteBuffer());
+            closeConnection(key);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -96,10 +86,16 @@ public class Server {
         buffer.get(data, 0, read);
 
         Request request = Request.parseRequest(new String(data));
-        Optional<Handler> handler = handlers.handlerFor(request.getMethod(), request.getUrl().getPath());
-        handler.ifPresent(h -> requestProcessor.processAsync(key, request, h));
+        requestDispatcher.getHandlerFor(request)
+            .ifPresent(handler -> processAsync(key, request, handler));
 
         key.interestOps(SelectionKey.OP_WRITE);
+    }
+
+    private void processAsync(SelectionKey key, Request request, RequestHandler handler) {
+        CompletableFuture
+            .supplyAsync(() -> handler.getAction().apply(request))
+            .thenAccept(response -> write(key, response));
     }
 
     private static void closeConnection(SelectionKey key) {
@@ -121,7 +117,7 @@ public class Server {
         } else if (key.isReadable()) {
             read(key);
         } else if (key.isWritable()) {
-            write(key);
+            key.cancel();
         }
     }
 
@@ -137,41 +133,16 @@ public class Server {
         }
     }
 
-    public void serve_blocking() throws IOException {
-        ServerSocket socket = new ServerSocket(port);
-        System.out.println("Listening on port " + port + "...\n");
-
-        while (true) {
-            Socket clientSocket = socket.accept(); //blocks
-            SocketBuffer socketBuffer = new SocketBuffer(clientSocket);
-            try {
-                String requestStr = socketBuffer.read();
-                System.out.println(requestStr);
-                Request request = Request.parseRequest(requestStr);
-
-                Optional<Handler> handler = handlers.handlerFor(request.getMethod(), request.getUrl().getPath());
-
-                if (handler.isPresent()) {
-                    Response response = handler.get().getAction().apply(request);
-                    socketBuffer.write(response.toString());
-                }
-            } catch (RequestException e) {
-                socketBuffer.write(Response.from(e).toString());
-            }
-            socketBuffer.close();
-        }
-    }
-
     @Data
-    private static class Connection {
-        private final ServerSocketChannel serverSocket;
+    private static class ServerConnection {
         private final Selector selector;
+        private final ServerSocketChannel serverSocket;
 
-        static Connection openConnection() {
+        static ServerConnection openConnection() {
             return openConnection(DEFAULT_HOST, DEFAULT_PORT);
         }
 
-        static Connection openConnection(String host, int port) {
+        static ServerConnection openConnection(String host, int port) {
             try {
                 ServerSocketChannel serverSocket = ServerSocketChannel.open();
                 serverSocket.configureBlocking(false);
@@ -179,8 +150,7 @@ public class Server {
 
                 Selector selector = Selector.open();
                 serverSocket.register(selector, SelectionKey.OP_ACCEPT);
-
-                return new Connection(serverSocket, selector);
+                return new ServerConnection(selector, serverSocket);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
