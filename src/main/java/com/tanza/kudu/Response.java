@@ -53,7 +53,7 @@ public class Response {
         return new Response(BAD_REQUEST, Headers.EMPTY_HEADER, null);
     }
 
-    private void addReqResponseHeaders() {
+    private void addReqResponseHeaders(Headers headers) {
         if (!headers.containsHeader(CONTENT_LENGTH)) {
             headers.addHeader(CONTENT_LENGTH, getContentLength());
         }
@@ -79,7 +79,7 @@ public class Response {
 
     @Override
     public String toString() {
-        addReqResponseHeaders();
+        addReqResponseHeaders(headers);
         String resp = formatStatusLine() + headers.toString() + CRLF;
         return body == null ? resp : resp + formatBody();
     }

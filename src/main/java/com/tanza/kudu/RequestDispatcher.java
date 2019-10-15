@@ -30,22 +30,23 @@ public class RequestDispatcher {
     }
 
     public Optional<RequestHandler> getHandlerFor(Request request) {
-        return getHandlerFor(request.getMethod(), request.getUrl().getPath());
+        return request == null
+            ? Optional.empty()
+            : getHandlerFor(request.getMethod(), request.getUrl().getPath());
     }
 
     Optional<RequestHandler> getHandlerFor(Method method, String path) {
         ResourceId id = new ResourceId(method, path);
         if (handlers.containsKey(id)) {
             return Optional.ofNullable(handlers.get(id));
+        } else {
+            return Optional.ofNullable(defaultHandler);
         }
-        return defaultHandler == null ? Optional.empty() : Optional.of(defaultHandler);
     }
 
     /**
-     * POJO to be used as keys to differentiate
-     * requests paths by path + request method
-     *
-     * //TODO get rid of this, impl equals in Request
+     * POJO used as keys to differentiate {@link RequestHandler}s by their path + request method,
+     * as {@link RequestHandler} do not contain a reference to a {@link Request}
      */
     @Data
     private static class ResourceId {

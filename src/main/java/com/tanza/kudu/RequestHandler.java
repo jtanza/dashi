@@ -19,8 +19,10 @@ public class RequestHandler {
     private final String path;
     private final Function<Request, Response> action;
 
-    public static RequestHandler asGet(String path, Function<Request, Response> action) {
-        return new RequestHandler(Method.GET, path, action);
+    public RequestHandler(String path, Function<Request, Response> action) {
+        this.method = DEFAULT_METHOD;
+        this.path = path;
+        this.action = action;
     }
 
     public static RequestHandler defaultHandler(Function<Request, Response> action) {

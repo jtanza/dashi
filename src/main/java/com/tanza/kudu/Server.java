@@ -1,5 +1,6 @@
 package com.tanza.kudu;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.io.IOException;
@@ -15,26 +16,24 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author jtanza
  */
+@AllArgsConstructor
 public class Server {
     private static final String DEFAULT_HOST = "127.0.0.1";
     private static final int DEFAULT_PORT = 1024;
     private static final int TIME_OUT_MS = 1000;
 
+    private final String host;
     private final int port;
     private final RequestDispatcher requestDispatcher;
 
-    public Server(int port, RequestDispatcher requestDispatcher) {
-        this.port = port;
-        this.requestDispatcher = requestDispatcher;
-    }
-
     public Server(RequestDispatcher requestDispatcher) {
+        this.host = DEFAULT_HOST;
         this.port = DEFAULT_PORT;
         this.requestDispatcher = requestDispatcher;
     }
 
     public void serve() throws IOException {
-        ServerConnection serverConnection = ServerConnection.openConnection();
+        ServerConnection serverConnection = ServerConnection.openConnection(host, port);
         Selector selector = serverConnection.getSelector();
 
         while (true) {
@@ -137,10 +136,6 @@ public class Server {
     private static class ServerConnection {
         private final Selector selector;
         private final ServerSocketChannel serverSocket;
-
-        static ServerConnection openConnection() {
-            return openConnection(DEFAULT_HOST, DEFAULT_PORT);
-        }
 
         static ServerConnection openConnection(String host, int port) {
             try {

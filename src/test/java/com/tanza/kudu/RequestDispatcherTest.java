@@ -17,8 +17,8 @@ public class RequestDispatcherTest {
     @Test
     public void testDispatch() {
         RequestDispatcher dispatch = new RequestDispatcher()
-            .addHandler(RequestHandler.asGet("/", r -> Response.ok("FOOBAR")))
-            .addHandler(RequestHandler.asGet("/query", r -> Response.ok("BAZBUCK")))
+            .addHandler(new RequestHandler("/", r -> Response.ok("FOOBAR")))
+            .addHandler(new RequestHandler("/query", r -> Response.ok("BAZBUCK")))
             .addDefault(RequestHandler.defaultHandler(r -> Response.badRequest()));
 
         assertEquals(
@@ -34,7 +34,7 @@ public class RequestDispatcherTest {
             Response.badRequest(), dispatch.getHandlerFor(Method.GET, "/ping").orElseThrow().getAction().apply(ArgumentMatchers.any(Request.class))
         );
 
-        dispatch.addDefault(RequestHandler.asGet("/ping", r -> Response.ok("PONG")));
+        dispatch.addDefault(new RequestHandler("/ping", r -> Response.ok("PONG")));
         assertEquals(
             "Addition of handler not recognized",
             Response.ok("PONG"), dispatch.getHandlerFor(Method.GET, "/ping").orElseThrow().getAction().apply(ArgumentMatchers.any(Request.class))
