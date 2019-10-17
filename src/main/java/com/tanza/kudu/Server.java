@@ -63,11 +63,12 @@ public class Server {
         SocketBuffer buffer = new SocketBuffer(key);
         buffer.readFromChannel().ifPresent(read -> {
             Request request = Request.from(read);
-            requestDispatcher.getHandlerFor(request).ifPresent(handler -> processAsync(key, request, handler));
+            requestDispatcher.getHandlerFor(request).ifPresent(handler -> processRequestAsync(handler, key, request));
         });
     }
 
-    private void processAsync(SelectionKey key, Request request, RequestHandler handler) {
+    private void processRequestAsync(RequestHandler handler, SelectionKey key, Request request) {
+        //TODO do we want to provide our own threadpool for request processing?
         CompletableFuture.supplyAsync(() -> handler.getAction().apply(request))
             .thenAccept(response -> write(key, response))
             .thenAccept((completable) -> key.cancel());

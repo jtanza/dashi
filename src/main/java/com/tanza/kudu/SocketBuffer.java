@@ -22,7 +22,9 @@ public class SocketBuffer {
 
     public SocketBuffer(@NonNull SelectionKey key) {
         this.key = key;
-        this.buffer = ByteBuffer.allocate(MAX_READ);
+        // add some padding so we can provide proper error messaging
+        // if requests are > than MAX_READ
+        this.buffer = ByteBuffer.allocate(MAX_READ + 512);
     }
 
     public Optional<byte[]> readFromChannel() {
@@ -37,7 +39,7 @@ public class SocketBuffer {
             Utils.closeConnection(key);
             return Optional.empty();
         }
-        if (read >= MAX_READ) {
+        if (read > MAX_READ) {
             throw new RequestException(PAYLOAD_TOO_LARGE);
         }
 
