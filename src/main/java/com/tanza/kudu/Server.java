@@ -62,7 +62,7 @@ public class Server {
     private void readThenWrite(SelectionKey key) {
         SocketBuffer buffer = new SocketBuffer(key);
         buffer.readFromChannel().ifPresent(read -> {
-            Request request = Request.parseRequest(read);
+            Request request = Request.from(read);
             requestDispatcher.getHandlerFor(request).ifPresent(handler -> processAsync(key, request, handler));
         });
     }
