@@ -2,6 +2,9 @@ package com.tanza.kudu;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.SocketChannel;
 
 import static com.tanza.kudu.Constants.StatusCode.INTERNAL_SERVER_ERROR;
 
@@ -33,5 +36,15 @@ public class Utils {
             throw new RequestException(INTERNAL_SERVER_ERROR);
         }
         return builder.toString();
+    }
+
+    public static void closeConnection(SelectionKey key) {
+        SocketChannel channel = (SocketChannel) key.channel();
+        key.cancel();
+        try {
+            channel.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
