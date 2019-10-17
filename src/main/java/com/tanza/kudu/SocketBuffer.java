@@ -8,6 +8,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.Optional;
 
+import static com.tanza.kudu.Constants.StatusCode.INTERNAL_SERVER_ERROR;
 import static com.tanza.kudu.Constants.StatusCode.PAYLOAD_TOO_LARGE;
 
 /**
@@ -29,10 +30,7 @@ public class SocketBuffer {
         try {
             read = ((SocketChannel) key.channel()).read(buffer);
         } catch (IOException e) {
-            //TODO rethrow as runtime?
-            e.printStackTrace();
-            Utils.closeConnection(key);
-            return Optional.empty();
+            throw new RequestException(INTERNAL_SERVER_ERROR);
         }
 
         if (read == -1) {

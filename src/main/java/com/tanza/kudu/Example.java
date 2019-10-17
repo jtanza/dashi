@@ -9,9 +9,11 @@ import java.util.concurrent.TimeUnit;
 public class Example {
 
     public static void main(String[] args) throws IOException {
+        // TODO var segments in urls /users/{id}
         RequestDispatcher requestDispatcher = new RequestDispatcher()
-            .addHandler(new RequestHandler(Method.PUT, "/users/123", r -> Response.ok()))
+            .addHandler(new RequestHandler(Method.PUT, "/users/{userId}", r -> Response.ok()))
             .addHandler(new RequestHandler(Method.DELETE, "/users/123", r -> Response.badRequest()))
+            .addHandler(new RequestHandler("/users/123/orders", r -> Response.ok()))
             .addHandler(new RequestHandler("/foo", r -> Response.ok("FOO")))
             .addHandler(new RequestHandler("/", r -> {
                 try {

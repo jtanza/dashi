@@ -2,6 +2,7 @@ package com.tanza.kudu;
 
 import com.tanza.kudu.Constants.Header;
 import com.tanza.kudu.Constants.Method;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -52,15 +53,17 @@ public class HttpParserTest {
     @Test
     public void testQueryParams() {
         String requestMessage =
-            "GET /resource?query=admin&name=bob HTTP/1.1\r\n" +
+            "GET /resource?query=admin&name=bob;sorted=true HTTP/1.1\r\n" +
                 "Host: foo.com\r\n" +
                 "User-Agent: curl/7.54.0\r\n" +
                 "Accept: */*\r\n\r\n";
 
         Request request = HttpParser.parseRequest(requestMessage);
 
-        assertEquals("http://foo.com/resource?query=admin&name=bob", request.getUrl().toExternalForm());
-        assertEquals("query=admin&name=bob", request.getUrl().getQuery());
+        assertEquals("http://foo.com/resource?query=admin&name=bob;sorted=true", request.getUrl().toExternalForm());
+        assertEquals(Pair.of("query", "admin"), request.getQueryParameters().get(0));
+        assertEquals(Pair.of("name", "bob"), request.getQueryParameters().get(1));
+        assertEquals(Pair.of("sorted", "true"), request.getQueryParameters().get(2));
         assertNull(request.getBody());
         assertEquals(Method.GET, request.getMethod());
         assertTrue(request.getHeaders().containsHeader(Header.HOST));

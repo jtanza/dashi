@@ -5,10 +5,18 @@ import com.tanza.kudu.Constants.Method;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
 
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.tanza.kudu.Constants.Header.*;
 import static com.tanza.kudu.Constants.Message.CRLF;
@@ -42,9 +50,10 @@ public class HttpParser {
             ? String.join("", Arrays.copyOfRange(messageLines, i, messageLines.length))
             : null;
 
+        URL url = parseUrl(requestLine, headers);
         return new Request(
-            requestLine.getMethod(), parseUrl(requestLine, headers),
-            headers, body
+            requestLine.getMethod(), url,
+            headers, body, parseQueryParameters(url)
         );
     }
 
@@ -54,11 +63,22 @@ public class HttpParser {
 
     private static URL parseUrl(RequestLine requestLine, Headers headers) {
         try {
-            //always http for now
+            //TODO protocol
             return new URL("http://" + headers.getValue(HOST) + requestLine.getRequestUri());
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static List<Pair<String, String>> parseQueryParameters(URL url) {
+        List<Pair<String, String>> res = new ArrayList<>();
+        try {
+            List<NameValuePair> nameValuePairs = URLEncodedUtils.parse(url.toURI(), StandardCharsets.UTF_8.name());
+            res = nameValuePairs.stream().map(nvp -> Pair.of(nvp.getName(), nvp.getValue())).collect(Collectors.toList());
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        return res;
     }
 
     @Getter

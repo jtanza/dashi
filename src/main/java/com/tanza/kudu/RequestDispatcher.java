@@ -3,9 +3,12 @@ package com.tanza.kudu;
 import com.tanza.kudu.Constants.Method;
 import lombok.Data;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author jtanza
@@ -17,6 +20,13 @@ public class RequestDispatcher {
 
     public RequestDispatcher() {
         this.handlers = new HashMap<>();
+    }
+
+    public RequestDispatcher(Collection<RequestHandler> handlers) {
+        this.handlers = handlers.stream()
+            .collect(Collectors.toMap(
+                h -> new ResourceId(h.getMethod(), h.getPath()), Function.identity())
+            );
     }
 
     public RequestDispatcher addDefault(RequestHandler defaultHandler) {
