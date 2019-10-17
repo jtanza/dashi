@@ -1,7 +1,5 @@
 package com.tanza.kudu;
 
-import lombok.NonNull;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -16,21 +14,16 @@ import static com.tanza.kudu.Constants.StatusCode.PAYLOAD_TOO_LARGE;
  */
 public class SocketBuffer {
     private static final int MAX_READ = 8192;
+    // add some padding so we can detect and provide proper
+    // error messaging if requests are > than MAX_READ
+    private static final ByteBuffer BUFFER = ByteBuffer.allocateDirect(MAX_READ + 8);
 
-    private final SelectionKey key;
-    private final ByteBuffer buffer;
+    public static Optional<byte[]> readFromChannel(SelectionKey key) {
+        BUFFER.clear();
 
-    public SocketBuffer(@NonNull SelectionKey key) {
-        this.key = key;
-        // add some padding so we can provide proper error messaging
-        // if requests are > than MAX_READ
-        this.buffer = ByteBuffer.allocate(MAX_READ + 512);
-    }
-
-    public Optional<byte[]> readFromChannel() {
         int read;
         try {
-            read = ((SocketChannel) key.channel()).read(buffer);
+            read = ((SocketChannel) key.channel()).read(BUFFER);
         } catch (IOException e) {
             throw new RequestException(INTERNAL_SERVER_ERROR);
         }
@@ -43,9 +36,10 @@ public class SocketBuffer {
             throw new RequestException(PAYLOAD_TOO_LARGE);
         }
 
-        buffer.flip();
+        // flip the buffer's state for a read
+        BUFFER.flip();
         byte[] res = new byte[read];
-        buffer.get(res, 0, read);
+        BUFFER.get(res);
 
         return Optional.of(res);
     }
