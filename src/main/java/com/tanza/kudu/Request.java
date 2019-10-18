@@ -27,6 +27,7 @@ public class Request {
     private final List<Pair<String, String>> queryParameters;
 
     public static Request from(byte[] request) {
+        // TODO default Charset
         return from(new String(request));
     }
 

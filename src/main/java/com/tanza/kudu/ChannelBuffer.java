@@ -12,7 +12,7 @@ import static com.tanza.kudu.Constants.StatusCode.PAYLOAD_TOO_LARGE;
 /**
  * @author jtanza
  */
-public class SocketBuffer {
+public class ChannelBuffer {
     private static final int MAX_READ = 8192;
     // add some padding so we can detect and provide proper
     // error messaging if requests are > than MAX_READ

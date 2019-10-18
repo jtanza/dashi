@@ -17,22 +17,19 @@ import java.util.concurrent.CompletableFuture;
  */
 @AllArgsConstructor
 public class Server {
-    private static final String DEFAULT_HOST = "127.0.0.1";
     private static final int DEFAULT_PORT = 1024;
     private static final int SELECTOR_TIME_OUT_MS = 1000;
 
-    private final String host;
     private final int port;
     private final RequestDispatcher requestDispatcher;
 
     public Server(RequestDispatcher requestDispatcher) {
-        this.host = DEFAULT_HOST;
         this.port = DEFAULT_PORT;
         this.requestDispatcher = requestDispatcher;
     }
 
     public void serve() throws IOException {
-        ServerConnection serverConnection = ServerConnection.openConnection(host, port);
+        ServerConnection serverConnection = ServerConnection.openConnection(port);
         Selector selector = serverConnection.getSelector();
 
         while (true) {
@@ -53,24 +50,24 @@ public class Server {
         }
 
         if (key.isAcceptable()) {
-            registerChannel(key, selector);
+            registerChannelWithSelector(key, selector);
         } else if (key.isReadable()) {
             readThenWrite(key);
         }
     }
 
     private void readThenWrite(SelectionKey key) {
-        SocketBuffer.readFromChannel(key).ifPresent(read -> {
+        ChannelBuffer.readFromChannel(key).ifPresent(read -> {
             Request request = Request.from(read);
             requestDispatcher.getHandlerFor(request).ifPresent(handler -> processRequestAsync(handler, key, request));
         });
     }
 
     private void processRequestAsync(RequestHandler handler, SelectionKey key, Request request) {
-        //TODO do we want to provide our own threadpool for request processing?
+        //TODO do we want to provide our own thread pool for request processing?
         CompletableFuture.supplyAsync(() -> handler.getAction().apply(request))
             .thenAccept(response -> write(key, response))
-            .thenAccept((completable) -> key.cancel());
+            .thenAccept((completable) -> Utils.closeConnection(key));
     }
 
     private static void write(SelectionKey key, Response response) {
@@ -83,9 +80,10 @@ public class Server {
         }
     }
 
-    private static void registerChannel(SelectionKey key, Selector selector) {
+    private static void registerChannelWithSelector(SelectionKey key, Selector selector) {
         try {
             SocketChannel socketChannel = ((ServerSocketChannel) key.channel()).accept();
+            // should always be a channel to accept, but guard
             if (socketChannel != null) {
                 socketChannel.configureBlocking(false);
                 socketChannel.register(selector, SelectionKey.OP_READ);
@@ -100,11 +98,11 @@ public class Server {
         private final Selector selector;
         private final ServerSocketChannel serverSocket;
 
-        static ServerConnection openConnection(String host, int port) {
+        static ServerConnection openConnection(int port) {
             try {
                 ServerSocketChannel serverSocket = ServerSocketChannel.open();
                 serverSocket.configureBlocking(false);
-                serverSocket.socket().bind(new InetSocketAddress(host, port));
+                serverSocket.socket().bind(new InetSocketAddress(port));
 
                 Selector selector = Selector.open();
                 serverSocket.register(selector, SelectionKey.OP_ACCEPT);
