@@ -11,6 +11,8 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * @author jtanza
@@ -18,14 +20,16 @@ import java.util.concurrent.CompletableFuture;
 @AllArgsConstructor
 public class Server {
     private static final int DEFAULT_PORT = 1024;
-    private static final int SELECTOR_TIME_OUT_MS = 1000;
+    private static final int SELECTOR_TIME_OUT_MS = 1_000;
 
     private final int port;
     private final RequestDispatcher requestDispatcher;
+    private final Executor workerPool;
 
     public Server(RequestDispatcher requestDispatcher) {
         this.port = DEFAULT_PORT;
         this.requestDispatcher = requestDispatcher;
+        this.workerPool = Executors.newCachedThreadPool();
     }
 
     public void serve() throws IOException {
@@ -64,8 +68,7 @@ public class Server {
     }
 
     private void processRequestAsync(RequestHandler handler, SelectionKey key, Request request) {
-        //TODO do we want to provide our own thread pool for request processing?
-        CompletableFuture.supplyAsync(() -> handler.getAction().apply(request))
+        CompletableFuture.supplyAsync(() -> handler.getAction().apply(request), workerPool)
             .thenAccept(response -> write(key, response))
             .thenAccept((completable) -> Utils.closeConnection(key));
     }
