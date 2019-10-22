@@ -17,7 +17,7 @@ public class ChannelBuffer {
     // error messaging if requests are > than MAX_READ
     private static final ByteBuffer BUFFER = ByteBuffer.allocateDirect(MAX_READ + 8);
 
-    public static Optional<byte[]> readFromChannel(SelectionKey key) {
+    public static Optional<byte[]> readFromChannel(SelectionKey key) throws RequestException {
         BUFFER.clear();
 
         int read;
@@ -35,7 +35,7 @@ public class ChannelBuffer {
         }
 
         if (read > MAX_READ) {
-            throw new RequestException(PAYLOAD_TOO_LARGE);
+            throw RequestException.from(PAYLOAD_TOO_LARGE);
         }
 
         // flip the buffer's state for a read

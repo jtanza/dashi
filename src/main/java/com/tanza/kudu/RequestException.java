@@ -10,8 +10,13 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public class RequestException extends RuntimeException {
+public class RequestException extends Throwable {
     static final long serialVersionUID = 1;
 
     private final StatusCode statusCode;
+    private final String body;
+
+    public static RequestException from(StatusCode statusCode) {
+        return new RequestException(statusCode, null);
+    }
 }

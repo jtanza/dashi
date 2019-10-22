@@ -22,7 +22,13 @@ public class Example {
                 }
                 return Response.ok("BAR");
             }))
-            .addHandler(new RequestHandler("/index.html", r -> Response.ok(Utils.getResource("index.html"))))
+            .addHandler(new RequestHandler("/index.html", r -> {
+                try {
+                    return Response.ok(Utils.getResource("index.html"));
+                } catch (IOException e) {
+                    return Response.from(e);
+                }
+            }))
             .addDefault(RequestHandler.defaultHandler(r -> Response.from(StatusCode.NOT_FOUND)));
 
         Server.builder(requestDispatcher).port(1024).build().serve();

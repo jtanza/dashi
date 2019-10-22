@@ -61,10 +61,14 @@ public class Server {
     }
 
     private void readThenWrite(SelectionKey key) {
-        ChannelBuffer.readFromChannel(key).ifPresent(read -> {
-            Request request = Request.from(read);
-            requestDispatcher.getHandlerFor(request).ifPresent(handler -> processRequestAsync(handler, key, request));
-        });
+        try {
+            ChannelBuffer.readFromChannel(key).ifPresent(read -> {
+                Request request = Request.from(read);
+                requestDispatcher.getHandlerFor(request).ifPresent(handler -> processRequestAsync(handler, key, request));
+            });
+        } catch (RequestException e) {
+            write(key, Response.from(e));
+        }
     }
 
     private void processRequestAsync(RequestHandler handler, SelectionKey key, Request request) {

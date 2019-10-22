@@ -14,6 +14,7 @@ import static com.tanza.kudu.Constants.Header.SERVER;
 import static com.tanza.kudu.Constants.Message.CRLF;
 import static com.tanza.kudu.Constants.Message.VERSION;
 import static com.tanza.kudu.Constants.StatusCode.BAD_REQUEST;
+import static com.tanza.kudu.Constants.StatusCode.INTERNAL_SERVER_ERROR;
 import static com.tanza.kudu.Constants.StatusCode.OK;
 
 /**
@@ -34,7 +35,11 @@ public class Response {
     }
 
     public static Response from(RequestException exception) {
-        return new Response(exception.getStatusCode(), new Headers(), null);
+        return new Response(exception.getStatusCode(), new Headers(), exception.getBody());
+    }
+
+    public static Response from(Exception exception) {
+        return new Response(INTERNAL_SERVER_ERROR, Headers.EMPTY_HEADER, exception.getMessage());
     }
 
     public static Response from(StatusCode statusCode) {

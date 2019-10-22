@@ -1,6 +1,7 @@
 package com.tanza.kudu;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
@@ -11,7 +12,7 @@ import static com.tanza.kudu.Constants.StatusCode.INTERNAL_SERVER_ERROR;
 /**
  * @author jtanza
  */
-public class Utils {
+class Utils {
 
     private Utils() {
         throw new AssertionError();
@@ -24,21 +25,19 @@ public class Utils {
      * @param path fully qualified path of resource on disk
      * @return {@link String} representation of resource located at {@param path}
      */
-    public static String getResource(String path) {
+    static String getResource(String path) throws IOException {
         StringBuilder builder = new StringBuilder();
-        try(BufferedReader reader = new BufferedReader(new FileReader(path))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 builder.append(System.lineSeparator());
                 builder.append(line);
             }
-        } catch (Exception e) {
-            throw new RequestException(INTERNAL_SERVER_ERROR);
         }
         return builder.toString();
     }
 
-    public static void closeConnection(SelectionKey key) {
+    static void closeConnection(SelectionKey key) {
         SocketChannel channel = (SocketChannel) key.channel();
         key.cancel();
         try {
