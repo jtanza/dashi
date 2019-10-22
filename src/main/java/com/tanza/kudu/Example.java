@@ -25,7 +25,6 @@ public class Example {
             .addHandler(new RequestHandler("/index.html", r -> Response.ok(Utils.getResource("index.html"))))
             .addDefault(RequestHandler.defaultHandler(r -> Response.from(StatusCode.NOT_FOUND)));
 
-        Server server = new Server(requestDispatcher);
-        server.serve();
+        Server.builder(requestDispatcher).port(1024).build().serve();
     }
 }

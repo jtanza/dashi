@@ -1,6 +1,6 @@
 package com.tanza.kudu;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 import java.io.IOException;
@@ -17,19 +17,19 @@ import java.util.concurrent.Executors;
 /**
  * @author jtanza
  */
-@AllArgsConstructor
+@Builder
 public class Server {
-    private static final int DEFAULT_PORT = 1024;
+    private static final int DEFAULT_PORT = 8080;
     private static final int SELECTOR_TIME_OUT_MS = 1_000;
 
-    private final int port;
+    @Builder.Default
+    private final int port = DEFAULT_PORT;
+    @Builder.Default
+    private final Executor workerPool = Executors.newCachedThreadPool();
     private final RequestDispatcher requestDispatcher;
-    private final Executor workerPool;
 
-    public Server(RequestDispatcher requestDispatcher) {
-        this.port = DEFAULT_PORT;
-        this.requestDispatcher = requestDispatcher;
-        this.workerPool = Executors.newCachedThreadPool();
+    public static ServerBuilder builder(RequestDispatcher requestDispatcher) {
+        return new ServerBuilder().requestDispatcher(requestDispatcher);
     }
 
     public void serve() throws IOException {
@@ -43,12 +43,12 @@ public class Server {
             while (iter.hasNext()) {
                 SelectionKey key = iter.next();
                 iter.remove();
-                processSocketEvent(selector, key);
+                handleSocketEvent(selector, key);
             }
         }
     }
 
-    private void processSocketEvent(Selector selector, SelectionKey key) {
+    private void handleSocketEvent(Selector selector, SelectionKey key) {
         if (!key.isValid()) {
             return;
         }
@@ -70,16 +70,16 @@ public class Server {
     private void processRequestAsync(RequestHandler handler, SelectionKey key, Request request) {
         CompletableFuture.supplyAsync(() -> handler.getAction().apply(request), workerPool)
             .thenAccept(response -> write(key, response))
-            .thenAccept((completable) -> Utils.closeConnection(key));
+            .thenAccept((c) -> Utils.closeConnection(key));
     }
 
     private static void write(SelectionKey key, Response response) {
         try {
             SocketChannel channel = (SocketChannel) key.channel();
             channel.write(response.toByteBuffer());
-            Utils.closeConnection(key);
         } catch (IOException e) {
             e.printStackTrace();
+            Utils.closeConnection(key);
         }
     }
 
@@ -92,6 +92,7 @@ public class Server {
                 socketChannel.register(selector, SelectionKey.OP_READ);
             }
         } catch (IOException e) {
+            key.cancel();
             e.printStackTrace();
         }
     }
