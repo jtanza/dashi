@@ -1,2 +1,2 @@
-# kudu
-A work-in-progress, toy, single threaded, asynchronous event driven embedded web server on the JVM.
+# dashi
+A work-in-progress, single threaded, asynchronous, embedded web server on the JVM.
