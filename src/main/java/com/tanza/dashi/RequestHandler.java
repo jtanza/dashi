@@ -1,23 +1,23 @@
 package com.tanza.dashi;
 
-import com.tanza.dashi.lib.LibConstants;
+import com.tanza.dashi.lib.LibConstants.Method;
 import com.tanza.dashi.lib.Response;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.function.Function;
 
 /**
- *
  * @author jtanza
  */
 @Getter
 @AllArgsConstructor
 public class RequestHandler {
-    private static final LibConstants.Method DEFAULT_METHOD = LibConstants.Method.GET;
+    private static final Method DEFAULT_METHOD = Method.GET;
 
-    private final LibConstants.Method method;
-    private final String path;
+    private final Method method;
+    private final String path; //TODO javadoc about slugs
     private final Function<Request, Response> action;
 
     public RequestHandler(String path, Function<Request, Response> action) {

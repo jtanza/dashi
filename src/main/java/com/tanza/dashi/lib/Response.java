@@ -2,7 +2,9 @@ package com.tanza.dashi.lib;
 
 import com.tanza.dashi.RequestException;
 import com.tanza.dashi.lib.LibConstants.StatusCode;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 
 import java.nio.ByteBuffer;
 import java.time.Instant;
@@ -22,35 +24,33 @@ import static com.tanza.dashi.lib.LibConstants.StatusCode.OK;
 /**
  * @author jtanza
  */
-//TODO Builder
+@AllArgsConstructor
 @EqualsAndHashCode
 public class Response {
     private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss O");
 
     private final StatusCode statusCode;
     private final Headers headers;
-    private final String body;
+    private String body;
 
-    public Response(StatusCode statusCode, Headers headers, String body) {
-        this.statusCode = statusCode;
-        this.headers = headers;
-        this.body = body;
-    }
-
-    public static Response from(StatusCode statusCode) {
-        return new Response(statusCode, Headers.EMPTY_HEADER, null);
+    public static Builder ok() {
+        return new Builder(OK);
     }
 
     public static Response ok(String body) {
         return new Response(OK, Headers.EMPTY_HEADER, body);
     }
 
-    public static Response ok() {
-        return new Response(OK, new Headers(), null);
+    public static Builder badRequest() {
+        return new Builder(BAD_REQUEST);
     }
 
-    public static Response badRequest() {
-        return new Response(BAD_REQUEST, Headers.EMPTY_HEADER, null);
+    public static Response badRequest(String body) {
+        return new Response(BAD_REQUEST, Headers.EMPTY_HEADER, body);
+    }
+
+    public static Builder from(StatusCode statusCode) {
+        return new Builder(statusCode);
     }
 
     public static Response from(Exception exception) {
@@ -94,5 +94,26 @@ public class Response {
 
     public ByteBuffer toByteBuffer() {
         return ByteBuffer.wrap(toString().getBytes());
+    }
+
+    @RequiredArgsConstructor
+    public static class Builder {
+        private final StatusCode statusCode;
+        private final Headers headers = new Headers();
+        private String body;
+
+        public Builder body(String body) {
+            this.body = body;
+            return this;
+        }
+
+        public Builder header(String header, String value) {
+            this.headers.addHeader(header, value);
+            return this;
+        }
+
+        public Response build() {
+            return new Response(statusCode, headers, body);
+        }
     }
 }

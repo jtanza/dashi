@@ -36,6 +36,7 @@ public class Request {
         return HttpParser.parseRequest(request);
     }
 
+    //TODO url encoding
     /**
      * Extracts URL path variables, mapping the values from slugs provided in
      * {@link RequestHandler#getPath()}.

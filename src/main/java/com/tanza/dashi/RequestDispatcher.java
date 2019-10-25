@@ -3,13 +3,10 @@ package com.tanza.dashi;
 import com.tanza.dashi.lib.LibConstants;
 import com.tanza.dashi.lib.Response;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.Value;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -22,16 +19,27 @@ public class RequestDispatcher {
 
     private final Map<ResourceId, RequestHandler> handlers;
 
-    public static Builder builder() {
-        Builder res = new Builder();
-        res.handlers = new ArrayList<>();
-        return res;
+    public RequestDispatcher() {
+        this.handlers = new HashMap<>();
     }
 
-    private RequestDispatcher(Collection<RequestHandler> handlers) {
+    public RequestDispatcher(Collection<RequestHandler> handlers) {
         this.handlers = handlers.stream().collect(Collectors.toMap(
             h -> new ResourceId(h.getMethod(), h.getPath()), Function.identity())
         );
+    }
+
+    /**
+     * Adds an {@link RequestHandler} to the underlying {@link RequestDispatcher}.
+     * This method is specified to return the dispatcher upon which it was invoked,
+     * allowing for chained method invocation.
+     *
+     * @param handler
+     * @return
+     */
+    public RequestDispatcher addHandler(RequestHandler handler) {
+        handlers.put(new ResourceId(handler.getMethod(), handler.getPath()), handler);
+        return this;
     }
 
     Optional<RequestHandler> getHandlerFor(Request request) {
@@ -50,26 +58,7 @@ public class RequestDispatcher {
     }
 
     private static RequestHandler notFound() {
-        return RequestHandler.defaultHandler(r -> Response.from(LibConstants.StatusCode.NOT_FOUND));
-    }
-
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class Builder {
-        private List<RequestHandler> handlers;
-
-        public Builder withHandler(RequestHandler handler) {
-            this.handlers.add(handler);
-            return this;
-        }
-
-        public Builder withHandlers(Collection<RequestHandler> handlers) {
-            this.handlers.addAll(handlers);
-            return this;
-        }
-
-        public RequestDispatcher build() {
-            return new RequestDispatcher(this.handlers);
-        }
+        return RequestHandler.defaultHandler(r -> Response.from(LibConstants.StatusCode.NOT_FOUND).build());
     }
 
     /**

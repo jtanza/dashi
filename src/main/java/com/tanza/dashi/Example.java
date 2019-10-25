@@ -9,13 +9,12 @@ import java.util.concurrent.TimeUnit;
 public class Example {
 
     public static void main(String[] args) {
-
-        RequestDispatcher requestDispatcher = RequestDispatcher.builder()
-            .withHandler(new RequestHandler(Method.PUT, "/users/{userId}", r -> Response.ok()))
-            .withHandler(new RequestHandler(Method.DELETE, "/users/123", r -> Response.badRequest()))
-            .withHandler(new RequestHandler("/users/123/orders", r -> Response.ok()))
-            .withHandler(new RequestHandler("/foo", r -> Response.ok("FOO")))
-            .withHandler(new RequestHandler("/", r -> {
+        RequestDispatcher requestDispatcher = new RequestDispatcher()
+            .addHandler(new RequestHandler(Method.PUT, "/users/{userId}", r -> Response.ok().build()))
+            .addHandler(new RequestHandler(Method.DELETE, "/users/123", r -> Response.badRequest().build()))
+            .addHandler(new RequestHandler("/users/123/orders", r -> Response.ok().build()))
+            .addHandler(new RequestHandler("/foo", r -> Response.ok("FOO")))
+            .addHandler(new RequestHandler("/", r -> {
                 try {
                     TimeUnit.SECONDS.sleep(8);
                 } catch (InterruptedException e) {
@@ -23,14 +22,13 @@ public class Example {
                 }
                 return Response.ok("BAR");
             }))
-            .withHandler(new RequestHandler("/index.html", r -> {
+            .addHandler(new RequestHandler("/index.html", r -> {
                 try {
                     return Response.ok(Utils.getResource("index.html"));
                 } catch (IOException e) {
                     return Response.from(e);
                 }
-            }))
-            .build();
+            }));
 
         Server.builder(requestDispatcher).port(1024).build().serve();
     }
