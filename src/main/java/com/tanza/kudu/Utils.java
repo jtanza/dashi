@@ -1,13 +1,10 @@
 package com.tanza.kudu;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-
-import static com.tanza.kudu.Constants.StatusCode.INTERNAL_SERVER_ERROR;
 
 /**
  * @author jtanza

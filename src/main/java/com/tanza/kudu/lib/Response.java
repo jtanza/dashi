@@ -1,6 +1,7 @@
-package com.tanza.kudu;
+package com.tanza.kudu.lib;
 
-import com.tanza.kudu.Constants.StatusCode;
+import com.tanza.kudu.RequestException;
+import com.tanza.kudu.lib.LibConstants.StatusCode;
 import lombok.EqualsAndHashCode;
 
 import java.nio.ByteBuffer;
@@ -8,18 +9,20 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
-import static com.tanza.kudu.Constants.Header.CONTENT_LENGTH;
-import static com.tanza.kudu.Constants.Header.DATE;
-import static com.tanza.kudu.Constants.Header.SERVER;
-import static com.tanza.kudu.Constants.Message.CRLF;
-import static com.tanza.kudu.Constants.Message.VERSION;
-import static com.tanza.kudu.Constants.StatusCode.BAD_REQUEST;
-import static com.tanza.kudu.Constants.StatusCode.INTERNAL_SERVER_ERROR;
-import static com.tanza.kudu.Constants.StatusCode.OK;
+import static com.tanza.kudu.lib.LibConstants.Header.CONTENT_LENGTH;
+import static com.tanza.kudu.lib.LibConstants.Header.DATE;
+import static com.tanza.kudu.lib.LibConstants.Header.SERVER;
+import static com.tanza.kudu.lib.LibConstants.Message.CRLF;
+import static com.tanza.kudu.lib.LibConstants.Message.KUDU_V;
+import static com.tanza.kudu.lib.LibConstants.Message.VERSION;
+import static com.tanza.kudu.lib.LibConstants.StatusCode.BAD_REQUEST;
+import static com.tanza.kudu.lib.LibConstants.StatusCode.INTERNAL_SERVER_ERROR;
+import static com.tanza.kudu.lib.LibConstants.StatusCode.OK;
 
 /**
  * @author jtanza
  */
+//TODO Builder
 @EqualsAndHashCode
 public class Response {
     private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss O");
@@ -32,14 +35,6 @@ public class Response {
         this.statusCode = statusCode;
         this.headers = headers;
         this.body = body;
-    }
-
-    public static Response from(RequestException exception) {
-        return new Response(exception.getStatusCode(), new Headers(), exception.getBody());
-    }
-
-    public static Response from(Exception exception) {
-        return new Response(INTERNAL_SERVER_ERROR, Headers.EMPTY_HEADER, exception.getMessage());
     }
 
     public static Response from(StatusCode statusCode) {
@@ -58,6 +53,14 @@ public class Response {
         return new Response(BAD_REQUEST, Headers.EMPTY_HEADER, null);
     }
 
+    public static Response from(Exception exception) {
+        if (exception instanceof RequestException) {
+            RequestException re = (RequestException) exception;
+            return new Response(re.getStatusCode(), Headers.EMPTY_HEADER, re.getBody());
+        }
+        return new Response(INTERNAL_SERVER_ERROR, Headers.EMPTY_HEADER, exception.getMessage());
+    }
+
     private void addReqResponseHeaders(Headers headers) {
         if (!headers.containsHeader(CONTENT_LENGTH)) {
             headers.addHeader(CONTENT_LENGTH, getContentLength());
@@ -66,7 +69,7 @@ public class Response {
             headers.addHeader(DATE, Instant.now().atOffset(ZoneOffset.UTC).format(DTF));
         }
         if (!headers.containsHeader(SERVER)) {
-            headers.addHeader(SERVER, "Kudu/0.0.1");
+            headers.addHeader(SERVER, KUDU_V);
         }
     }
 

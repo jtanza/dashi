@@ -6,7 +6,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.Optional;
 
-import static com.tanza.kudu.Constants.StatusCode.PAYLOAD_TOO_LARGE;
+import static com.tanza.kudu.lib.LibConstants.StatusCode.PAYLOAD_TOO_LARGE;
 
 /**
  * @author jtanza

@@ -1,11 +1,11 @@
-package com.tanza.kudu;
+package com.tanza.kudu.lib;
 
 import lombok.EqualsAndHashCode;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.tanza.kudu.Constants.Message.*;
+import static com.tanza.kudu.lib.LibConstants.Message.CRLF;
 
 /**
  * @author jtanza

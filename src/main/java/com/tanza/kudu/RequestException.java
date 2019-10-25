@@ -1,16 +1,16 @@
 package com.tanza.kudu;
 
-import com.tanza.kudu.Constants.StatusCode;
+import com.tanza.kudu.lib.LibConstants.StatusCode;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
  * @author jtanza
  */
 @Getter
-@AllArgsConstructor
-public class RequestException extends Throwable {
+@RequiredArgsConstructor
+public class RequestException extends RuntimeException {
     static final long serialVersionUID = 1;
 
     private final StatusCode statusCode;

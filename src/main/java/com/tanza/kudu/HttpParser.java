@@ -1,7 +1,8 @@
 package com.tanza.kudu;
 
-import com.tanza.kudu.Constants.Method;
+import com.tanza.kudu.lib.LibConstants.Method;
 
+import com.tanza.kudu.lib.Headers;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
@@ -18,9 +19,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.tanza.kudu.Constants.Header.*;
-import static com.tanza.kudu.Constants.Message.CRLF;
-import static com.tanza.kudu.Constants.Message.SP;
+import static com.tanza.kudu.lib.LibConstants.Header.CONTENT_LENGTH;
+import static com.tanza.kudu.lib.LibConstants.Header.HOST;
+import static com.tanza.kudu.lib.LibConstants.Header.TRANSFER_ENCODING;
+import static com.tanza.kudu.lib.LibConstants.Message.CRLF;
+import static com.tanza.kudu.lib.LibConstants.Message.SP;
 
 /**
  * @author jtanza
@@ -63,7 +66,7 @@ public class HttpParser {
 
     private static URL parseUrl(RequestLine requestLine, Headers headers) {
         try {
-            //TODO protocol
+            //TODO always http for now
             return new URL("http://" + headers.getValue(HOST) + requestLine.getRequestUri());
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
@@ -86,7 +89,7 @@ public class HttpParser {
     private static class RequestLine {
         private final Method method;
         private final String requestUri;
-        private final String HttpVersion;
+        private final String httpVersion;
 
         private static RequestLine from(String[] requestLine) {
             return new RequestLine(Method.from(requestLine[0]), requestLine[1], requestLine[2]);

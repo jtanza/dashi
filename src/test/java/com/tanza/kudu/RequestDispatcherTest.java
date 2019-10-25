@@ -1,12 +1,13 @@
 package com.tanza.kudu;
 
-import com.tanza.kudu.Constants.Method;
+import com.tanza.kudu.lib.LibConstants.Method;
 
+import com.tanza.kudu.lib.Response;
 import org.junit.Test;
 
 import org.mockito.ArgumentMatchers;
 
-import static com.tanza.kudu.Constants.StatusCode.NOT_FOUND;
+import static com.tanza.kudu.lib.LibConstants.StatusCode.NOT_FOUND;
 import static org.junit.Assert.*;
 
 /**
@@ -16,10 +17,10 @@ public class RequestDispatcherTest {
 
     @Test
     public void testDispatch() {
-        RequestDispatcher dispatch = new RequestDispatcher()
-            .addHandler(new RequestHandler("/", r -> Response.ok("FOOBAR")))
-            .addHandler(new RequestHandler("/query", r -> Response.ok("BAZBUCK")))
-            .addDefault(RequestHandler.defaultHandler(r -> Response.badRequest()));
+        RequestDispatcher dispatch = RequestDispatcher.builder()
+            .withHandler(new RequestHandler("/", r -> Response.ok("FOOBAR")))
+            .withHandler(new RequestHandler("/query", r -> Response.ok("BAZBUCK")))
+            .build();
 
         assertEquals(
             "Handler for / did not return correct response",
@@ -31,13 +32,7 @@ public class RequestDispatcherTest {
         );
         assertEquals(
             "Handler for /ping did not return correct response",
-            Response.badRequest(), dispatch.getHandlerFor(Method.GET, "/ping").orElseThrow().getAction().apply(ArgumentMatchers.any(Request.class))
-        );
-
-        dispatch.addDefault(new RequestHandler("/ping", r -> Response.ok("PONG")));
-        assertEquals(
-            "Addition of handler not recognized",
-            Response.ok("PONG"), dispatch.getHandlerFor(Method.GET, "/ping").orElseThrow().getAction().apply(ArgumentMatchers.any(Request.class))
+            Response.from(NOT_FOUND), dispatch.getHandlerFor(Method.GET, "/ping").orElseThrow().getAction().apply(ArgumentMatchers.any(Request.class))
         );
     }
 
@@ -46,9 +41,10 @@ public class RequestDispatcherTest {
         System.out.println(Response.ok().toString());
         final String userResource = "/users/12345";
 
-        RequestDispatcher dispatch = new RequestDispatcher()
-            .addHandler(new RequestHandler(Method.PUT,    userResource, r -> Response.ok()))
-            .addHandler(new RequestHandler(Method.DELETE, userResource, r -> Response.from(NOT_FOUND)));
+        RequestDispatcher dispatch = RequestDispatcher.builder()
+            .withHandler(new RequestHandler(Method.PUT,    userResource, r -> Response.ok()))
+            .withHandler(new RequestHandler(Method.DELETE, userResource, r -> Response.from(NOT_FOUND)))
+            .build();
 
         assertEquals(
             "PUT Handler for " + dispatch + " did not return correct response",

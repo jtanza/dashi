@@ -1,6 +1,7 @@
 package com.tanza.kudu;
 
-import com.tanza.kudu.Constants.Method;
+import com.tanza.kudu.lib.LibConstants.Method;
+import com.tanza.kudu.lib.Response;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

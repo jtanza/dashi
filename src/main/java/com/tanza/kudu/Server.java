@@ -1,5 +1,6 @@
 package com.tanza.kudu;
 
+import com.tanza.kudu.lib.Response;
 import lombok.Builder;
 import lombok.Data;
 
@@ -28,16 +29,22 @@ public class Server {
     private final Executor workerPool = Executors.newCachedThreadPool();
     private final RequestDispatcher requestDispatcher;
 
+
     public static ServerBuilder builder(RequestDispatcher requestDispatcher) {
         return new ServerBuilder().requestDispatcher(requestDispatcher);
     }
 
-    public void serve() throws IOException {
+    public void serve() {
         ServerConnection serverConnection = ServerConnection.openConnection(port);
         Selector selector = serverConnection.getSelector();
 
         while (true) {
-            selector.select(SELECTOR_TIME_OUT_MS);
+            try {
+                selector.select(SELECTOR_TIME_OUT_MS);
+            } catch (IOException e) {
+                if (!selector.isOpen())
+                e.printStackTrace();
+            }
 
             Iterator<SelectionKey> iter = selector.selectedKeys().iterator();
             while (iter.hasNext()) {
@@ -61,14 +68,10 @@ public class Server {
     }
 
     private void readThenWrite(SelectionKey key) {
-        try {
-            ChannelBuffer.readFromChannel(key).ifPresent(read -> {
-                Request request = Request.from(read);
-                requestDispatcher.getHandlerFor(request).ifPresent(handler -> processRequestAsync(handler, key, request));
-            });
-        } catch (RequestException e) {
-            write(key, Response.from(e));
-        }
+        ChannelBuffer.readFromChannel(key).ifPresent(read -> {
+            Request request = Request.from(read);
+            requestDispatcher.getHandlerFor(request).ifPresent(handler -> processRequestAsync(handler, key, request));
+        });
     }
 
     private void processRequestAsync(RequestHandler handler, SelectionKey key, Request request) {
@@ -96,8 +99,8 @@ public class Server {
                 socketChannel.register(selector, SelectionKey.OP_READ);
             }
         } catch (IOException e) {
-            key.cancel();
             e.printStackTrace();
+            key.cancel();
         }
     }
 

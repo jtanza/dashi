@@ -1,16 +1,17 @@
-package com.tanza.kudu;
+package com.tanza.kudu.lib;
 
 import lombok.NonNull;
 
 /**
  * @author jtanza
  */
-public interface Constants {
+public interface LibConstants {
 
     interface Message {
         String VERSION = "HTTP/1.1 ";
         String CRLF = "\r\n";
         String SP = " ";
+        String KUDU_V = "Kudu/0.0.1";
     }
 
     interface Header {

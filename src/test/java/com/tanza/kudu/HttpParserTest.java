@@ -1,7 +1,7 @@
 package com.tanza.kudu;
 
-import com.tanza.kudu.Constants.Header;
-import com.tanza.kudu.Constants.Method;
+import com.tanza.kudu.lib.LibConstants.Header;
+import com.tanza.kudu.lib.LibConstants.Method;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 
