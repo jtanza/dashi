@@ -1,8 +1,8 @@
-package com.tanza.kudu;
+package com.tanza.dashi;
 
-import com.tanza.kudu.lib.LibConstants.Method;
+import com.tanza.dashi.lib.LibConstants.Method;
 
-import com.tanza.kudu.lib.Headers;
+import com.tanza.dashi.lib.Headers;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
@@ -19,11 +19,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.tanza.kudu.lib.LibConstants.Header.CONTENT_LENGTH;
-import static com.tanza.kudu.lib.LibConstants.Header.HOST;
-import static com.tanza.kudu.lib.LibConstants.Header.TRANSFER_ENCODING;
-import static com.tanza.kudu.lib.LibConstants.Message.CRLF;
-import static com.tanza.kudu.lib.LibConstants.Message.SP;
+import static com.tanza.dashi.lib.LibConstants.Header.CONTENT_LENGTH;
+import static com.tanza.dashi.lib.LibConstants.Header.HOST;
+import static com.tanza.dashi.lib.LibConstants.Header.TRANSFER_ENCODING;
+import static com.tanza.dashi.lib.LibConstants.Message.CRLF;
+import static com.tanza.dashi.lib.LibConstants.Message.SP;
 
 /**
  * @author jtanza

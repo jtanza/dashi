@@ -1,7 +1,7 @@
-package com.tanza.kudu;
+package com.tanza.dashi;
 
-import com.tanza.kudu.lib.LibConstants.Method;
-import com.tanza.kudu.lib.Response;
+import com.tanza.dashi.lib.LibConstants.Method;
+import com.tanza.dashi.lib.Response;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;

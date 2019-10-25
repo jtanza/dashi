@@ -1,8 +1,8 @@
-package com.tanza.kudu;
+package com.tanza.dashi;
 
-import com.tanza.kudu.lib.LibConstants.Method;
+import com.tanza.dashi.lib.Headers;
+import com.tanza.dashi.lib.LibConstants;
 
-import com.tanza.kudu.lib.Headers;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,7 +22,7 @@ import java.util.Map;
 @Getter
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
 public class Request {
-    private final Method method;
+    private final LibConstants.Method method;
     private final URL url;
     private final Headers headers;
     private final String body;

@@ -1,4 +1,4 @@
-package com.tanza.kudu.lib;
+package com.tanza.dashi.lib;
 
 import lombok.NonNull;
 
@@ -11,7 +11,7 @@ public interface LibConstants {
         String VERSION = "HTTP/1.1 ";
         String CRLF = "\r\n";
         String SP = " ";
-        String KUDU_V = "Kudu/0.0.1";
+        String DASHI_V = "Dashi/0.0.1";
     }
 
     interface Header {

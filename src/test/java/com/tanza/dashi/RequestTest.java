@@ -1,4 +1,4 @@
-package com.tanza.kudu;
+package com.tanza.dashi;
 
 import org.junit.Test;
 

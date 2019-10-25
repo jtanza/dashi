@@ -1,12 +1,12 @@
-package com.tanza.kudu;
+package com.tanza.dashi;
+
+import com.tanza.dashi.lib.LibConstants;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.Optional;
-
-import static com.tanza.kudu.lib.LibConstants.StatusCode.PAYLOAD_TOO_LARGE;
 
 /**
  * @author jtanza
@@ -35,7 +35,7 @@ public class ChannelBuffer {
         }
 
         if (read > MAX_READ) {
-            throw RequestException.from(PAYLOAD_TOO_LARGE);
+            throw RequestException.from(LibConstants.StatusCode.PAYLOAD_TOO_LARGE);
         }
 
         // flip the buffer's state for a read

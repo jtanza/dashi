@@ -1,7 +1,7 @@
-package com.tanza.kudu.lib;
+package com.tanza.dashi.lib;
 
-import com.tanza.kudu.RequestException;
-import com.tanza.kudu.lib.LibConstants.StatusCode;
+import com.tanza.dashi.RequestException;
+import com.tanza.dashi.lib.LibConstants.StatusCode;
 import lombok.EqualsAndHashCode;
 
 import java.nio.ByteBuffer;
@@ -9,15 +9,15 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
-import static com.tanza.kudu.lib.LibConstants.Header.CONTENT_LENGTH;
-import static com.tanza.kudu.lib.LibConstants.Header.DATE;
-import static com.tanza.kudu.lib.LibConstants.Header.SERVER;
-import static com.tanza.kudu.lib.LibConstants.Message.CRLF;
-import static com.tanza.kudu.lib.LibConstants.Message.KUDU_V;
-import static com.tanza.kudu.lib.LibConstants.Message.VERSION;
-import static com.tanza.kudu.lib.LibConstants.StatusCode.BAD_REQUEST;
-import static com.tanza.kudu.lib.LibConstants.StatusCode.INTERNAL_SERVER_ERROR;
-import static com.tanza.kudu.lib.LibConstants.StatusCode.OK;
+import static com.tanza.dashi.lib.LibConstants.Header.CONTENT_LENGTH;
+import static com.tanza.dashi.lib.LibConstants.Header.DATE;
+import static com.tanza.dashi.lib.LibConstants.Header.SERVER;
+import static com.tanza.dashi.lib.LibConstants.Message.CRLF;
+import static com.tanza.dashi.lib.LibConstants.Message.DASHI_V;
+import static com.tanza.dashi.lib.LibConstants.Message.VERSION;
+import static com.tanza.dashi.lib.LibConstants.StatusCode.BAD_REQUEST;
+import static com.tanza.dashi.lib.LibConstants.StatusCode.INTERNAL_SERVER_ERROR;
+import static com.tanza.dashi.lib.LibConstants.StatusCode.OK;
 
 /**
  * @author jtanza
@@ -69,7 +69,7 @@ public class Response {
             headers.addHeader(DATE, Instant.now().atOffset(ZoneOffset.UTC).format(DTF));
         }
         if (!headers.containsHeader(SERVER)) {
-            headers.addHeader(SERVER, KUDU_V);
+            headers.addHeader(SERVER, DASHI_V);
         }
     }
 

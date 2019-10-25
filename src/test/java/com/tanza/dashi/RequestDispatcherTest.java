@@ -1,13 +1,13 @@
-package com.tanza.kudu;
+package com.tanza.dashi;
 
-import com.tanza.kudu.lib.LibConstants.Method;
+import com.tanza.dashi.lib.LibConstants.Method;
 
-import com.tanza.kudu.lib.Response;
+import com.tanza.dashi.lib.Response;
 import org.junit.Test;
 
 import org.mockito.ArgumentMatchers;
 
-import static com.tanza.kudu.lib.LibConstants.StatusCode.NOT_FOUND;
+import static com.tanza.dashi.lib.LibConstants.StatusCode.NOT_FOUND;
 import static org.junit.Assert.*;
 
 /**

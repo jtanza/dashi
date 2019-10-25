@@ -1,11 +1,11 @@
-package com.tanza.kudu.lib;
+package com.tanza.dashi.lib;
 
 import lombok.EqualsAndHashCode;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.tanza.kudu.lib.LibConstants.Message.CRLF;
+import static com.tanza.dashi.lib.LibConstants.Message.CRLF;
 
 /**
  * @author jtanza

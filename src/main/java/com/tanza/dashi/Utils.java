@@ -1,4 +1,4 @@
-package com.tanza.kudu;
+package com.tanza.dashi;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

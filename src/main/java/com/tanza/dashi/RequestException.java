@@ -1,6 +1,6 @@
-package com.tanza.kudu;
+package com.tanza.dashi;
 
-import com.tanza.kudu.lib.LibConstants.StatusCode;
+import com.tanza.dashi.lib.LibConstants;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -13,10 +13,10 @@ import lombok.RequiredArgsConstructor;
 public class RequestException extends RuntimeException {
     static final long serialVersionUID = 1;
 
-    private final StatusCode statusCode;
+    private final LibConstants.StatusCode statusCode;
     private final String body;
 
-    public static RequestException from(StatusCode statusCode) {
+    public static RequestException from(LibConstants.StatusCode statusCode) {
         return new RequestException(statusCode, null);
     }
 }

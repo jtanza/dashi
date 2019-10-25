@@ -1,8 +1,7 @@
-package com.tanza.kudu;
+package com.tanza.dashi;
 
-import com.tanza.kudu.lib.LibConstants.Method;
-import com.tanza.kudu.lib.LibConstants.StatusCode;
-import com.tanza.kudu.lib.Response;
+import com.tanza.dashi.lib.LibConstants;
+import com.tanza.dashi.lib.Response;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -41,7 +40,7 @@ public class RequestDispatcher {
             : getHandlerFor(request.getMethod(), request.getUrl().getPath());
     }
 
-    Optional<RequestHandler> getHandlerFor(Method method, String path) {
+    Optional<RequestHandler> getHandlerFor(LibConstants.Method method, String path) {
         ResourceId id = new ResourceId(method, path);
         if (handlers.containsKey(id)) {
             return Optional.ofNullable(handlers.get(id));
@@ -51,7 +50,7 @@ public class RequestDispatcher {
     }
 
     private static RequestHandler notFound() {
-        return RequestHandler.defaultHandler(r -> Response.from(StatusCode.NOT_FOUND));
+        return RequestHandler.defaultHandler(r -> Response.from(LibConstants.StatusCode.NOT_FOUND));
     }
 
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -79,7 +78,7 @@ public class RequestDispatcher {
      */
     @Value
     private static class ResourceId {
-        private final Method method;
+        private final LibConstants.Method method;
         private final String path;
     }
 }

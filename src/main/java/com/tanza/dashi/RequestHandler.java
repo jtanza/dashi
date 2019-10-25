@@ -1,7 +1,7 @@
-package com.tanza.kudu;
+package com.tanza.dashi;
 
-import com.tanza.kudu.lib.LibConstants.Method;
-import com.tanza.kudu.lib.Response;
+import com.tanza.dashi.lib.LibConstants;
+import com.tanza.dashi.lib.Response;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -14,9 +14,9 @@ import java.util.function.Function;
 @Getter
 @AllArgsConstructor
 public class RequestHandler {
-    private static final Method DEFAULT_METHOD = Method.GET;
+    private static final LibConstants.Method DEFAULT_METHOD = LibConstants.Method.GET;
 
-    private final Method method;
+    private final LibConstants.Method method;
     private final String path;
     private final Function<Request, Response> action;
 
