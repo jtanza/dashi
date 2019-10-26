@@ -117,7 +117,7 @@ public class Server {
      */
     private static BiFunction<Request, RequestHandler, Response> handlerWrapper() {
         return (request, handler) -> {
-            request.parsePathVariables(handler);
+            request.setPathVariables(handler);
             return handler.getAction().apply(request);
         };
     }

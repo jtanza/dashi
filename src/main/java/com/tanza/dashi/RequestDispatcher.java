@@ -59,9 +59,6 @@ public class RequestDispatcher {
 
     Optional<RequestHandler> getHandlerFor(Method requestMethod, String requestPath) {
         ResourceId id = new ResourceId(requestMethod, requestPath);
-        if (handlers.containsKey(id)) {
-            return Optional.of(handlers.get(id));
-        }
         return handlers.containsKey(id)
             ? Optional.of(handlers.get(id))
             : Optional.ofNullable(findVariableHandler(requestPath));
@@ -69,16 +66,30 @@ public class RequestDispatcher {
 
     private RequestHandler findVariableHandler(String requestPath) {
         RequestHandler ret = null;
+        String[] requestPathSegments = requestPath.split("/");
+
         int maxIndexDiff = Integer.MIN_VALUE;
-        for (RequestHandler h : variableHandlers) {
-            String varPath = h.getPath();
-            int index = StringUtils.indexOfDifference(varPath, requestPath);
-            if (index > maxIndexDiff) {
-                maxIndexDiff = index;
-                ret = h;
+        for (RequestHandler handler : variableHandlers) {
+            String varPath = handler.getPath();
+            if (isCongruentPaths(varPath.split("/"), requestPathSegments)) {
+                int index = StringUtils.indexOfDifference(varPath, requestPath);
+                if (index > maxIndexDiff) {
+                    maxIndexDiff = index;
+                    ret = handler;
+                }
             }
         }
         return ret;
+    }
+
+    private static boolean isCongruentPaths(String[] varPath, String[] requestPath) {
+        for (int i = 0; i < varPath.length; i++) {
+            String variablePathSegment = varPath[i];
+            if (!isVarPath(variablePathSegment) && !variablePathSegment.equals(requestPath[i])) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static boolean isVarPath(String path) {

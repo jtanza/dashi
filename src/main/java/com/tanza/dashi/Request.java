@@ -1,7 +1,7 @@
 package com.tanza.dashi;
 
 import com.tanza.dashi.lib.Headers;
-import com.tanza.dashi.lib.LibConstants;
+import com.tanza.dashi.lib.LibConstants.Method;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -14,6 +14,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,11 +26,12 @@ import java.util.stream.Collectors;
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class Request {
-    private final LibConstants.Method method;
+    private final Method method;
     private final URL url;
     private final Headers headers;
     private final String body;
     private final List<Pair<String, String>> queryParameters;
+
     private Map<String, String> pathVariables;
 
     public static Request from(byte[] request) {
@@ -48,11 +50,7 @@ public class Request {
      * See {@link Request#parsePathVariables(String)} for how mappings are computed.
      */
     public String getPathVariable(@NonNull String varName) {
-        if (pathVariables == null || pathVariables.isEmpty()) {
-            return null;
-        }
-
-        return pathVariables.get(varName);
+        return pathVariables == null ? null : pathVariables.get(varName);
     }
 
     /**
@@ -68,14 +66,14 @@ public class Request {
      *
      * @param requestHandler
      */
-    void parsePathVariables(@NonNull RequestHandler requestHandler) {
-        parsePathVariables(requestHandler.getPath());
+    void setPathVariables(@NonNull RequestHandler requestHandler) {
+        this.pathVariables = parsePathVariables(requestHandler.getPath());
     }
 
     //TODO url encoding
-    void parsePathVariables(String path) {
+    private Map<String, String> parsePathVariables(String path) {
         if (StringUtils.isEmpty(path)) {
-            return;
+            return Collections.emptyMap();
         }
 
         List<String> pathSegments = Arrays.stream(url.getPath().split("/")).map(p -> URLDecoder.decode(p, StandardCharsets.UTF_8)).collect(Collectors.toList());
@@ -88,7 +86,7 @@ public class Request {
                 pathVariables.put(extractVarName(segment), pathSegments.get(i));
             }
         }
-        this.pathVariables = pathVariables;
+        return pathVariables;
     }
 
     private static String extractVarName(String pathVariable) {
