@@ -10,8 +10,7 @@ public class Example {
 
     public static void main(String[] args) {
         RequestDispatcher requestDispatcher = new RequestDispatcher()
-            .addHandler(new RequestHandler(Method.PUT, "/users/{userId}", r -> Response.ok().build()))
-            .addHandler(new RequestHandler(Method.DELETE, "/users/123", r -> Response.badRequest().build()))
+            .addHandler(new RequestHandler(Method.PUT, "/users/{userId}", r -> Response.ok(r.getPathVariable("userId"))))
             .addHandler(new RequestHandler("/users/123/orders", r -> Response.ok().build()))
             .addHandler(new RequestHandler("/foo", r -> Response.ok("FOO")))
             .addHandler(new RequestHandler("/", r -> {

@@ -1,7 +1,6 @@
 package com.tanza.dashi;
 
-import com.tanza.dashi.lib.LibConstants;
-import com.tanza.dashi.lib.Response;
+import com.tanza.dashi.lib.LibConstants.Method;
 
 import lombok.Value;
 
@@ -48,17 +47,9 @@ public class RequestDispatcher {
             : getHandlerFor(request.getMethod(), request.getUrl().getPath());
     }
 
-    Optional<RequestHandler> getHandlerFor(LibConstants.Method method, String path) {
+    Optional<RequestHandler> getHandlerFor(Method method, String path) {
         ResourceId id = new ResourceId(method, path);
-        if (handlers.containsKey(id)) {
-            return Optional.ofNullable(handlers.get(id));
-        } else {
-            return Optional.of(notFound());
-        }
-    }
-
-    private static RequestHandler notFound() {
-        return RequestHandler.defaultHandler(r -> Response.from(LibConstants.StatusCode.NOT_FOUND).build());
+        return handlers.containsKey(id) ? Optional.of(handlers.get(id)) : Optional.empty();
     }
 
     /**
@@ -67,7 +58,7 @@ public class RequestDispatcher {
      */
     @Value
     private static class ResourceId {
-        private final LibConstants.Method method;
+        private final Method method;
         private final String path;
     }
 }

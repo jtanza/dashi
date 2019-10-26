@@ -25,8 +25,4 @@ public class RequestHandler {
         this.path = path;
         this.action = action;
     }
-
-    public static RequestHandler defaultHandler(Function<Request, Response> action) {
-        return new RequestHandler(null, null, action);
-    }
 }

@@ -5,10 +5,7 @@ import com.tanza.dashi.lib.Response;
 
 import org.junit.Test;
 
-import java.util.Map;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author jtanza
@@ -26,10 +23,9 @@ public class RequestTest {
                     "\r\n\r\n"
             );
 
-            Map<String, String> pathVariables = request.parsePathVariables("/users/{userId}/orders/{orderId}");
-            assertNotNull(pathVariables);
-            assertEquals("123", pathVariables.get("userId"));
-            assertEquals("456", pathVariables.get("orderId"));
+            request.parsePathVariables("/users/{userId}/orders/{orderId}");
+            assertEquals("123", request.getPathVariable("userId"));
+            assertEquals("456", request.getPathVariable("orderId"));
         }
 
         {
@@ -45,11 +41,24 @@ public class RequestTest {
                 Method.PUT, "/users/{userName}/post/{postId}", r -> Response.ok().build()
             );
 
-            Map<String, String> pathVariables = request.parsePathVariables(handler.getPath());
-            assertNotNull(pathVariables);
-            assertEquals("bob", pathVariables.get("userName"));
-            assertEquals("456", pathVariables.get("postId"));
+            request.parsePathVariables(handler);
+            assertEquals("bob", request.getPathVariable("userName"));
+            assertEquals("456", request.getPathVariable("postId"));
         }
+    }
 
+    @Test
+    public void testEncoded() {
+        Request request = Request.from(
+            "GET %2Ffoo%2F%C2%A3500%2Fbar%2FHello%20G%C3%BCnter HTTP/1.1\r\n" +
+                "Host: localhost:1024\r\n" +
+                "User-Agent: curl/7.54.0\r\n" +
+                "Accept: */*\r\n" +
+                "\r\n\r\n"
+        );
+
+        request.parsePathVariables("/foo/{pound}/bar/{phrase}");
+        assertEquals("£500", request.getPathVariable("pound"));
+        assertEquals("Hello Günter", request.getPathVariable("phrase"));
     }
 }

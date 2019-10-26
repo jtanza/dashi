@@ -7,6 +7,8 @@ import org.junit.Test;
 
 import org.mockito.ArgumentMatchers;
 
+import java.util.Optional;
+
 import static com.tanza.dashi.lib.LibConstants.StatusCode.NOT_FOUND;
 import static org.junit.Assert.*;
 
@@ -52,6 +54,18 @@ public class RequestDispatcherTest {
             "DELETE Handler for " + dispatch + " did not return correct response",
             Response.from(NOT_FOUND).build(), dispatch.getHandlerFor(Method.DELETE, userResource).orElseThrow().getAction().apply(ArgumentMatchers.any(Request.class))
         );
+
+    }
+
+    @Test
+    public void testPathsWithSlugs() {
+        RequestDispatcher dispatch = new RequestDispatcher()
+            .addHandler(new RequestHandler(Method.GET, "/users/{userId}/orders/{orderId}", r -> Response.ok().build()));
+
+        Optional<RequestHandler> handler = dispatch.getHandlerFor(Method.GET, "/users/123/orders/456");
+
+        assertTrue(handler.isPresent());
+        assertEquals(Response.ok(), handler.get().getAction().apply(ArgumentMatchers.any(Request.class)));
 
     }
 }

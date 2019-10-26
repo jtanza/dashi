@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.function.BiFunction;
 
 /**
  * @author jtanza
@@ -43,7 +44,7 @@ public class Server {
             try {
                 selector.select(SELECTOR_TIME_OUT_MS);
             } catch (IOException e) {
-                if (!selector.isOpen())
+                //TODO
                 e.printStackTrace();
             }
 
@@ -71,12 +72,15 @@ public class Server {
     private void readThenWrite(SelectionKey key) {
         ChannelBuffer.readFromChannel(key).ifPresent(read -> {
             Request request = Request.from(read);
-            requestDispatcher.getHandlerFor(request).ifPresent(handler -> processRequestAsync(handler, key, request));
+            requestDispatcher.getHandlerFor(request).ifPresentOrElse(
+                (handler) -> processRequestAsync(handler, key, request),
+                () -> write(key, Response.notFound())
+            );
         });
     }
 
     private void processRequestAsync(RequestHandler handler, SelectionKey key, Request request) {
-        CompletableFuture.supplyAsync(() -> handler.getAction().apply(request), workerPool)
+        CompletableFuture.supplyAsync(() -> handlerWrapper().apply(request, handler), workerPool)
             .thenAccept(response -> write(key, response))
             .thenAccept((c) -> Utils.closeConnection(key));
     }
@@ -103,6 +107,19 @@ public class Server {
             e.printStackTrace();
             key.cancel();
         }
+    }
+
+    /**
+     * Mutates the {@link Request} with path variables computed with a
+     * {@link RequestHandler} before applying {@link RequestHandler#getAction()}
+     *
+     * @return
+     */
+    private static BiFunction<Request, RequestHandler, Response> handlerWrapper() {
+        return (request, handler) -> {
+            request.parsePathVariables(handler);
+            return handler.getAction().apply(request);
+        };
     }
 
     @Data

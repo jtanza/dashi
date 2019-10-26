@@ -19,6 +19,7 @@ import static com.tanza.dashi.lib.LibConstants.Message.DASHI_V;
 import static com.tanza.dashi.lib.LibConstants.Message.VERSION;
 import static com.tanza.dashi.lib.LibConstants.StatusCode.BAD_REQUEST;
 import static com.tanza.dashi.lib.LibConstants.StatusCode.INTERNAL_SERVER_ERROR;
+import static com.tanza.dashi.lib.LibConstants.StatusCode.NOT_FOUND;
 import static com.tanza.dashi.lib.LibConstants.StatusCode.OK;
 
 /**
@@ -38,7 +39,7 @@ public class Response {
     }
 
     public static Response ok(String body) {
-        return new Response(OK, Headers.EMPTY_HEADER, body);
+        return new Response(OK, new Headers(), body);
     }
 
     public static Builder badRequest() {
@@ -46,7 +47,11 @@ public class Response {
     }
 
     public static Response badRequest(String body) {
-        return new Response(BAD_REQUEST, Headers.EMPTY_HEADER, body);
+        return new Response(BAD_REQUEST, new Headers(), body);
+    }
+
+    public static Response notFound() {
+        return new Response(NOT_FOUND, new Headers(), null);
     }
 
     public static Builder from(StatusCode statusCode) {
@@ -56,9 +61,9 @@ public class Response {
     public static Response from(Exception exception) {
         if (exception instanceof RequestException) {
             RequestException re = (RequestException) exception;
-            return new Response(re.getStatusCode(), Headers.EMPTY_HEADER, re.getBody());
+            return new Response(re.getStatusCode(), new Headers(), re.getBody());
         }
-        return new Response(INTERNAL_SERVER_ERROR, Headers.EMPTY_HEADER, exception.getMessage());
+        return new Response(INTERNAL_SERVER_ERROR, new Headers(), exception.getMessage());
     }
 
     private void addReqResponseHeaders(Headers headers) {

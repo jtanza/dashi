@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,8 +15,6 @@ import static com.tanza.dashi.lib.LibConstants.Message.CRLF;
 @EqualsAndHashCode
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class Headers {
-    public static final Headers EMPTY_HEADER = new Headers(Collections.unmodifiableMap(new HashMap<>()));
-
     private final Map<String, String> headers;
 
     public Headers() {
