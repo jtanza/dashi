@@ -1,15 +1,15 @@
 package com.tanza.dashi;
 
 import com.tanza.dashi.lib.LibConstants.Method;
-
 import com.tanza.dashi.lib.Response;
-import org.junit.Test;
 
+import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 
 import java.util.Optional;
 
 import static com.tanza.dashi.lib.LibConstants.StatusCode.NOT_FOUND;
+import static com.tanza.dashi.lib.LibConstants.StatusCode.NO_CONTENT;
 import static org.junit.Assert.*;
 
 /**
@@ -31,9 +31,11 @@ public class RequestDispatcherTest {
             "No default handler present",
             dispatch.getHandlerFor(Method.GET, "/ping")
         );
+
+        dispatch.addHandler(new RequestHandler("/ping", r -> Response.ok("PONG")));
         assertEquals(
             "Handler for /ping did not return correct response",
-            Response.from(NOT_FOUND).build(), dispatch.getHandlerFor(Method.GET, "/ping").orElseThrow().getAction().apply(ArgumentMatchers.any(Request.class))
+            Response.ok("PONG"), dispatch.getHandlerFor(Method.GET, "/ping").orElseThrow().getAction().apply(ArgumentMatchers.any(Request.class))
         );
     }
 
@@ -54,18 +56,34 @@ public class RequestDispatcherTest {
             "DELETE Handler for " + dispatch + " did not return correct response",
             Response.from(NOT_FOUND).build(), dispatch.getHandlerFor(Method.DELETE, userResource).orElseThrow().getAction().apply(ArgumentMatchers.any(Request.class))
         );
-
     }
 
     @Test
     public void testPathsWithSlugs() {
-        RequestDispatcher dispatch = new RequestDispatcher()
-            .addHandler(new RequestHandler(Method.GET, "/users/{userId}/orders/{orderId}", r -> Response.ok().build()));
+        {
+            RequestDispatcher dispatch = new RequestDispatcher()
+                .addHandler(new RequestHandler(Method.GET, "/users/{userId}/orders/{orderId}", r -> Response.ok().build()));
 
-        Optional<RequestHandler> handler = dispatch.getHandlerFor(Method.GET, "/users/123/orders/456");
+            Optional<RequestHandler> handler = dispatch.getHandlerFor(Method.GET, "/users/123/orders/456");
 
-        assertTrue(handler.isPresent());
-        assertEquals(Response.ok(), handler.get().getAction().apply(ArgumentMatchers.any(Request.class)));
+            assertTrue(handler.isPresent());
+            assertEquals(Response.ok().build(), handler.get().getAction().apply(ArgumentMatchers.any(Request.class)));
+        }
 
+        {
+            RequestDispatcher dispatch = new RequestDispatcher()
+                .addHandler(new RequestHandler(Method.PUT, "/users/{userId}/orders/{orderId}", r -> Response.ok().build()))
+                .addHandler(new RequestHandler(Method.PUT, "/users/project/orders/{orderId}",  r -> Response.from(NO_CONTENT).build()));
+
+            Optional<RequestHandler> handler = dispatch.getHandlerFor(Method.GET, "/users/123/orders/456");
+
+            assertTrue(handler.isPresent());
+            assertEquals(Response.ok().build(), handler.get().getAction().apply(ArgumentMatchers.any(Request.class)));
+
+            Optional<RequestHandler> projectHandler = dispatch.getHandlerFor(Method.GET, "/users/project/orders/456");
+
+            assertTrue(projectHandler.isPresent());
+            assertEquals(Response.from(NO_CONTENT).build(), projectHandler.get().getAction().apply(ArgumentMatchers.any(Request.class)));
+        }
     }
 }

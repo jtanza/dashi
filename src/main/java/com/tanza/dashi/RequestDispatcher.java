@@ -3,9 +3,12 @@ package com.tanza.dashi;
 import com.tanza.dashi.lib.LibConstants.Method;
 
 import lombok.Value;
+import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -17,15 +20,18 @@ import java.util.stream.Collectors;
 public class RequestDispatcher {
 
     private final Map<ResourceId, RequestHandler> handlers;
+    private final List<RequestHandler> variableHandlers;
 
     public RequestDispatcher() {
         this.handlers = new HashMap<>();
+        this.variableHandlers = new ArrayList<>();
     }
 
     public RequestDispatcher(Collection<RequestHandler> handlers) {
         this.handlers = handlers.stream().collect(Collectors.toMap(
             h -> new ResourceId(h.getMethod(), h.getPath()), Function.identity())
         );
+        this.variableHandlers = new ArrayList<>();
     }
 
     /**
@@ -37,7 +43,11 @@ public class RequestDispatcher {
      * @return
      */
     public RequestDispatcher addHandler(RequestHandler handler) {
-        handlers.put(new ResourceId(handler.getMethod(), handler.getPath()), handler);
+        String path = handler.getPath();
+        handlers.put(new ResourceId(handler.getMethod(), path), handler);
+        if (isVarPath(path)) {
+            variableHandlers.add(handler);
+        }
         return this;
     }
 
@@ -47,9 +57,32 @@ public class RequestDispatcher {
             : getHandlerFor(request.getMethod(), request.getUrl().getPath());
     }
 
-    Optional<RequestHandler> getHandlerFor(Method method, String path) {
-        ResourceId id = new ResourceId(method, path);
-        return handlers.containsKey(id) ? Optional.of(handlers.get(id)) : Optional.empty();
+    Optional<RequestHandler> getHandlerFor(Method requestMethod, String requestPath) {
+        ResourceId id = new ResourceId(requestMethod, requestPath);
+        if (handlers.containsKey(id)) {
+            return Optional.of(handlers.get(id));
+        }
+        return handlers.containsKey(id)
+            ? Optional.of(handlers.get(id))
+            : Optional.ofNullable(findVariableHandler(requestPath));
+    }
+
+    private RequestHandler findVariableHandler(String requestPath) {
+        RequestHandler ret = null;
+        int maxIndexDiff = Integer.MIN_VALUE;
+        for (RequestHandler h : variableHandlers) {
+            String varPath = h.getPath();
+            int index = StringUtils.indexOfDifference(varPath, requestPath);
+            if (index > maxIndexDiff) {
+                maxIndexDiff = index;
+                ret = h;
+            }
+        }
+        return ret;
+    }
+
+    private static boolean isVarPath(String path) {
+        return path.indexOf('{') >= 0;
     }
 
     /**
