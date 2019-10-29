@@ -76,8 +76,8 @@ public class HttpParser {
     private static List<Pair<String, String>> parseQueryParameters(URL url) {
         List<Pair<String, String>> res = new ArrayList<>();
         try {
-            List<NameValuePair> nameValuePairs = URLEncodedUtils.parse(url.toURI(), StandardCharsets.UTF_8.name());
-            res = nameValuePairs.stream().map(nvp -> Pair.of(nvp.getName(), nvp.getValue())).collect(Collectors.toList());
+            List<NameValuePair> queryParams = URLEncodedUtils.parse(url.toURI(), StandardCharsets.UTF_8.name());
+            res = queryParams.stream().map(nvp -> Pair.of(nvp.getName(), nvp.getValue())).collect(Collectors.toList());
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }

@@ -1,8 +1,8 @@
 package com.tanza.dashi;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
@@ -15,22 +15,20 @@ class Utils {
         throw new AssertionError();
     }
 
-    //TODO MOVE TO REQUESTUTILS
     /**
-     * N.B. {@param path} must represent fully qualified path of resource
-     * on disk
-     *
-     * @param path fully qualified path of resource on disk
-     * @return {@link String} representation of resource located at {@param path}
+     * @param streamReader an un-buffered {@link Reader}.
+     * @return {@link String} representation of the character stream associated with the {@param streamReader}.
      */
-    static String getResource(String path) throws IOException {
+    static String getResource(Reader streamReader) {
         StringBuilder builder = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
+        try (BufferedReader reader = new BufferedReader(streamReader)) {
             String line;
             while ((line = reader.readLine()) != null) {
                 builder.append(System.lineSeparator());
                 builder.append(line);
             }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         return builder.toString();
     }

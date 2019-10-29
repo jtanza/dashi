@@ -22,7 +22,7 @@ import java.util.function.BiFunction;
  */
 @Builder
 public class Server {
-    private static final int DEFAULT_PORT = 8080;
+    private static final int DEFAULT_PORT = 80;
     private static final int SELECTOR_TIME_OUT_MS = 1_000;
 
     @Builder.Default
@@ -73,8 +73,7 @@ public class Server {
         ChannelBuffer.readFromChannel(key).ifPresent(read -> {
             Request request = Request.from(read);
             requestDispatcher.getHandlerFor(request).ifPresentOrElse(
-                (handler) -> processRequestAsync(handler, key, request),
-                () -> write(key, Response.notFound())
+                handler -> processRequestAsync(handler, key, request), respondNotFound(key)
             );
         });
     }
@@ -109,8 +108,12 @@ public class Server {
         }
     }
 
+    private Runnable respondNotFound(SelectionKey key) {
+        return () -> write(key, Response.notFound());
+    }
+
     /**
-     * Mutates the {@link Request} with path variables computed with a
+     * Mutates the {@link Request} with path variables computed with data derived from a
      * {@link RequestHandler} before applying {@link RequestHandler#getAction()}
      *
      * @return

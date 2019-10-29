@@ -2,9 +2,19 @@ package com.tanza.dashi;
 
 import com.tanza.dashi.lib.LibConstants.Method;
 
+import com.tanza.dashi.lib.Response;
+import lombok.NonNull;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -42,13 +52,32 @@ public class RequestDispatcher {
      * @param handler
      * @return
      */
-    public RequestDispatcher addHandler(RequestHandler handler) {
+    public RequestDispatcher addHandler(@NonNull RequestHandler handler) {
         String path = handler.getPath();
         handlers.put(new ResourceId(handler.getMethod(), path), handler);
         if (isVarPath(path)) {
             variableHandlers.add(handler);
         }
         return this;
+    }
+
+    /**
+     * Configures {@param resourcePath} as the directory from which to serve static files on client requests.
+     *
+     * More specifically, this method scans for files located in {@code /src/main/resources/{@param resourcePath}}
+     * and generates {@link RequestHandler}s to respond to user requests for said static files.
+     *
+     * Note, {@param resourcePath} <em>must</em> be a subdirectory of {@code /src/main/resources/},
+     * and it is required that only the basename is provided as an argument to this method.
+     *
+     * For example, with static files located under {@code /src/main/resources/web/} the {@param resourcePath}
+     * passed to this method should be {@code /web}.
+     *
+     * @param resourcePath the directory under which static resources are located
+     * @return
+     */
+    public RequestDispatcher addResourcePath(@NonNull String resourcePath) {
+        return addResourceHandlers(makeResourceHandlers(scanForResources(resourcePath), resourcePath));
     }
 
     Optional<RequestHandler> getHandlerFor(Request request) {
@@ -65,9 +94,12 @@ public class RequestDispatcher {
     }
 
     private RequestHandler findVariableHandler(String requestPath) {
+        if (variableHandlers.isEmpty()) {
+            return null;
+        }
+
         RequestHandler ret = null;
         String[] requestPathSegments = requestPath.split("/");
-
         int maxIndexDiff = Integer.MIN_VALUE;
         for (RequestHandler handler : variableHandlers) {
             String varPath = handler.getPath();
@@ -94,6 +126,34 @@ public class RequestDispatcher {
 
     private static boolean isVarPath(String path) {
         return path.indexOf('{') >= 0;
+    }
+
+    private RequestDispatcher addResourceHandlers(List<RequestHandler> requestHandlers) {
+        requestHandlers.forEach(rh -> handlers.put(new ResourceId(rh.getMethod(), rh.getPath()), rh));
+        return this;
+    }
+
+    private List<RequestHandler> makeResourceHandlers(List<String> filePaths, String resourcesPath) {
+        return filePaths.stream().map(filePath -> new RequestHandler(
+            filePath,
+            r -> Response.ok(Utils.getResource(new InputStreamReader(this.getClass().getResourceAsStream(resourcesPath + filePath)))))
+        ).collect(Collectors.toList());
+    }
+
+    private List<String> scanForResources(@NonNull String resourcePath) {
+        URL resourceUrl = this.getClass().getResource(resourcePath);
+        if (resourceUrl == null) {
+            throw new AssertionError("Could not locate resource from " + resourcePath);
+        }
+        try {
+            return Files.list(Paths.get(resourceUrl.toURI())).filter(Files::isRegularFile).map(formatFileName()).collect(Collectors.toList());
+        } catch (IOException | URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static Function<Path, String> formatFileName() {
+        return p -> File.separator + p.toFile().getName();
     }
 
     /**

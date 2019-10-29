@@ -3,7 +3,6 @@ package com.tanza.dashi;
 import com.tanza.dashi.lib.LibConstants.Method;
 import com.tanza.dashi.lib.Response;
 
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 public class Example {
@@ -21,14 +20,9 @@ public class Example {
                 }
                 return Response.ok("BAR");
             }))
-            .addHandler(new RequestHandler("/index.html", r -> {
-                try {
-                    return Response.ok(Utils.getResource("index.html"));
-                } catch (IOException e) {
-                    return Response.from(e);
-                }
-            }));
+            .addResourcePath("/web");
 
-        Server.builder(requestDispatcher).port(1024).build().serve();
+
+        Server.builder(requestDispatcher).build().serve();
     }
 }
