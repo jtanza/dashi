@@ -2,7 +2,8 @@ package com.tanza.dashi;
 
 import com.tanza.dashi.lib.Response;
 
-import lombok.Builder;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.io.IOException;
@@ -20,20 +21,17 @@ import java.util.function.BiFunction;
 /**
  * @author jtanza
  */
-@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Server {
-    private static final int DEFAULT_PORT = 80;
     private static final int SELECTOR_TIME_OUT_MS = 1_000;
 
-    @Builder.Default
-    private final int port = DEFAULT_PORT;
-    @Builder.Default
-    private final Executor workerPool = Executors.newCachedThreadPool();
+    private final int port;
+    private final Executor workerPool;
     private final RequestDispatcher requestDispatcher;
+    private final ChannelBuffer channelBuffer;
 
-
-    public static ServerBuilder builder(RequestDispatcher requestDispatcher) {
-        return new ServerBuilder().requestDispatcher(requestDispatcher);
+    public static Builder builder(RequestDispatcher requestDispatcher) {
+        return new Builder(requestDispatcher);
     }
 
     public void serve() {
@@ -70,7 +68,7 @@ public class Server {
     }
 
     private void readThenWrite(SelectionKey key) {
-        ChannelBuffer.readFromChannel(key).ifPresent(read -> {
+        channelBuffer.readFromChannel(key).ifPresent(read -> {
             Request request = Request.from(read);
             requestDispatcher.getHandlerFor(request).ifPresentOrElse(
                 handler -> processRequestAsync(handler, key, request), respondNotFound(key)
@@ -123,6 +121,42 @@ public class Server {
             request.setPathVariables(handler);
             return handler.getAction().apply(request);
         };
+    }
+
+    public static class Builder {
+        private static final int DEFAULT_PORT = 80;
+        private static final int DEFAULT_MAX_READ = 1024 * 500;
+        private static final Executor DEFAULT_THREAD_POOL = Executors.newCachedThreadPool();
+
+        private int port = DEFAULT_PORT;
+        private int maxFormSize = DEFAULT_MAX_READ;
+        private Executor workerPool = DEFAULT_THREAD_POOL;
+
+        private final RequestDispatcher requestDispatcher;
+
+        public Builder(RequestDispatcher requestDispatcher) {
+            this.requestDispatcher = requestDispatcher;
+        }
+
+        public Builder port(int port) {
+            this.port = port;
+            return this;
+        }
+
+        public Builder maxFormSize(int maxFormSize) {
+            this.maxFormSize = maxFormSize;
+            return this;
+        }
+
+        public Builder workerPool(Executor workerPool) {
+            this.workerPool = workerPool;
+            return this;
+        }
+
+        public Server build() {
+            return new Server(port, workerPool, requestDispatcher, new ChannelBuffer(maxFormSize));
+        }
+
     }
 
     @Data

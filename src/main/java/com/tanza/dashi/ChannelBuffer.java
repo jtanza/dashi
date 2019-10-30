@@ -12,17 +12,22 @@ import java.util.Optional;
  * @author jtanza
  */
 class ChannelBuffer {
-    private static final int MAX_READ = 8192;
-    // add some padding so we can detect and provide proper
-    // error messaging if requests are > than MAX_READ
-    private static final ByteBuffer BUFFER = ByteBuffer.allocateDirect(MAX_READ + 512);
+    private final int maxRead;
+    private final ByteBuffer buffer;
 
-    static Optional<byte[]> readFromChannel(SelectionKey key) throws RequestException {
-        BUFFER.clear();
+    public ChannelBuffer(int maxRead) {
+        this.maxRead = maxRead;
+        // add some padding so we can detect and provide proper
+        // error messaging if requests are > than MAX_READ
+        this.buffer = ByteBuffer.allocateDirect(maxRead + 512);
+    }
+
+    Optional<byte[]> readFromChannel(SelectionKey key) throws RequestException {
+        buffer.clear();
 
         int read;
         try {
-            read = ((SocketChannel) key.channel()).read(BUFFER);
+            read = ((SocketChannel) key.channel()).read(buffer);
         } catch (IOException e) {
             e.printStackTrace();
             Utils.closeConnection(key);
@@ -34,14 +39,14 @@ class ChannelBuffer {
             return Optional.empty();
         }
 
-        if (read > MAX_READ) {
+        if (read > maxRead) {
             throw RequestException.from(StatusCode.PAYLOAD_TOO_LARGE);
         }
 
         // flip the buffer's state for a read
-        BUFFER.flip();
+        buffer.flip();
         byte[] res = new byte[read];
-        BUFFER.get(res);
+        buffer.get(res);
 
         return Optional.of(res);
     }
