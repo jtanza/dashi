@@ -5,7 +5,7 @@ import lombok.NonNull;
 /**
  * @author jtanza
  */
-public interface LibConstants {
+public interface Constants {
 
     interface Header {
         String CONTENT_LENGTH = "Content-Length";
@@ -16,7 +16,7 @@ public interface LibConstants {
     }
 
     enum Method {
-        GET, POST, DELETE, PUT;
+        GET, HEAD, POST, DELETE, PUT, OPTIONS, PATCH;
 
         public static Method from(@NonNull String method) {
             return Enum.valueOf(Method.class, method.trim().toUpperCase());
@@ -24,9 +24,9 @@ public interface LibConstants {
     }
 
     enum StatusCode {
-        OK("OK", 200), NO_CONTENT("No Content", 204),
-        BAD_REQUEST("Bad Request", 400), PAYLOAD_TOO_LARGE("Payload Too Large", 413),
-        NOT_FOUND("Not Found", 404),
+        OK("OK", 200), CREATED("Created", 201), NO_CONTENT("No Content", 204),
+        MOVED_PERMANENTLY("Moved Permanently", 301), FOUND("Found", 302), SEE_OTHER("See Other", 303),
+        BAD_REQUEST("Bad Request", 400), PAYLOAD_TOO_LARGE("Payload Too Large", 413), NOT_FOUND("Not Found", 404),
         INTERNAL_SERVER_ERROR("Internal Server Error", 500);
 
         private final String reasonPhrase;

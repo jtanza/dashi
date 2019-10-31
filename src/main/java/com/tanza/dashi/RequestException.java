@@ -1,6 +1,6 @@
 package com.tanza.dashi;
 
-import com.tanza.dashi.LibConstants.StatusCode;
+import com.tanza.dashi.Constants.StatusCode;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

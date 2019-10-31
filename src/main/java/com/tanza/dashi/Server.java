@@ -16,7 +16,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.function.BiFunction;
 
-import static com.tanza.dashi.LibConstants.StatusCode.NOT_FOUND;
+import static com.tanza.dashi.Constants.StatusCode.NOT_FOUND;
 
 /**
  * @author jtanza

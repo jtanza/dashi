@@ -1,6 +1,6 @@
 package com.tanza.dashi;
 
-import com.tanza.dashi.LibConstants.Method;
+import com.tanza.dashi.Constants.Method;
 
 import org.junit.Ignore;
 import org.junit.Test;

@@ -1,21 +1,24 @@
 package com.tanza.dashi;
 
-import com.tanza.dashi.LibConstants.StatusCode;
+import com.tanza.dashi.Constants.StatusCode;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.nio.ByteBuffer;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
-import static com.tanza.dashi.LibConstants.Header.CONTENT_LENGTH;
-import static com.tanza.dashi.LibConstants.Header.DATE;
-import static com.tanza.dashi.LibConstants.Header.SERVER;
-import static com.tanza.dashi.LibConstants.StatusCode.BAD_REQUEST;
-import static com.tanza.dashi.LibConstants.StatusCode.OK;
+import static com.tanza.dashi.Constants.Header.CONTENT_LENGTH;
+import static com.tanza.dashi.Constants.Header.DATE;
+import static com.tanza.dashi.Constants.Header.SERVER;
+import static com.tanza.dashi.Constants.StatusCode.BAD_REQUEST;
+import static com.tanza.dashi.Constants.StatusCode.OK;
 
 /**
  * @author jtanza
@@ -23,33 +26,39 @@ import static com.tanza.dashi.LibConstants.StatusCode.OK;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode
 public class Response {
+    static final String CRLF = "\r\n";
+
     private static final String VERSION = "HTTP/1.1 ";
     private static final String DASHI_V = "Dashi/0.0.1";
-    private static final String CRLF = "\r\n";
     private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss O");
 
     private final StatusCode statusCode;
     private final Headers headers;
+    private final Pair<String, Integer> customStatusCode;
     private String body;
 
     public static Builder ok() {
-        return new Builder(OK);
+        return new Builder().statusCode(OK);
     }
 
     public static Response ok(String body) {
-        return new Response(OK, new Headers(), body);
+        return new Response(OK, new Headers(), null, body);
     }
 
     public static Builder badRequest() {
-        return new Builder(BAD_REQUEST);
+        return new Builder().statusCode(BAD_REQUEST);
     }
 
     public static Response badRequest(String body) {
-        return new Response(BAD_REQUEST, new Headers(), body);
+        return new Response(BAD_REQUEST, new Headers(), null, body);
     }
 
-    public static Builder from(StatusCode statusCode) {
-        return new Builder(statusCode);
+    public static Builder from(@NonNull StatusCode statusCode) {
+        return new Builder().statusCode(statusCode);
+    }
+
+    public static Builder from(@NonNull String reasonPhrase, int code) {
+        return new Builder().statusCode(Pair.of(reasonPhrase, code));
     }
 
     private void addReqResponseHeaders(Headers headers) {
@@ -64,12 +73,18 @@ public class Response {
         }
     }
 
+    private String formatStatusLine() {
+        return statusCode != null
+            ? VERSION + statusCode + CRLF
+            : VERSION + formatCustomStatusCode(customStatusCode) + CRLF;
+    }
+
     private String getContentLength() {
         return body == null ? "0" : String.valueOf(body.length() + 1);
     }
 
-    private String formatStatusLine() {
-        return VERSION + statusCode + CRLF;
+    private static String formatCustomStatusCode(Pair<String, Integer> statusCodePair) {
+        return statusCodePair.getRight() + " " + statusCodePair.getLeft();
     }
 
     private String formatBody() {
@@ -87,11 +102,22 @@ public class Response {
         return ByteBuffer.wrap(toString().getBytes());
     }
 
-    @RequiredArgsConstructor
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Builder {
-        private final StatusCode statusCode;
-        private final Headers headers = new Headers();
+        private StatusCode statusCode;
+        private Headers headers = new Headers();
+        private Pair<String, Integer> customStatusCode;
         private String body;
+
+        private Builder statusCode(StatusCode statusCode) {
+            this.statusCode = statusCode;
+            return this;
+        }
+
+        private Builder statusCode(Pair<String, Integer> customStatusCode) {
+            this.customStatusCode = customStatusCode;
+            return this;
+        }
 
         public Builder body(String body) {
             this.body = body;
@@ -104,7 +130,7 @@ public class Response {
         }
 
         public Response build() {
-            return new Response(statusCode, headers, body);
+            return new Response(statusCode, headers, customStatusCode, body);
         }
     }
 }

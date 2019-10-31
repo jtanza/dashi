@@ -1,6 +1,6 @@
 package com.tanza.dashi;
 
-import com.tanza.dashi.LibConstants.Method;
+import com.tanza.dashi.Constants.Method;
 
 import lombok.NonNull;
 import lombok.Value;

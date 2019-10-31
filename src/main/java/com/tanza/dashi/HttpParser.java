@@ -1,6 +1,6 @@
 package com.tanza.dashi;
 
-import com.tanza.dashi.LibConstants.Method;
+import com.tanza.dashi.Constants.Method;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,9 +18,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.tanza.dashi.LibConstants.Header.CONTENT_LENGTH;
-import static com.tanza.dashi.LibConstants.Header.HOST;
-import static com.tanza.dashi.LibConstants.Header.TRANSFER_ENCODING;
+import static com.tanza.dashi.Constants.Header.CONTENT_LENGTH;
+import static com.tanza.dashi.Constants.Header.HOST;
+import static com.tanza.dashi.Constants.Header.TRANSFER_ENCODING;
 
 /**
  * @author jtanza
