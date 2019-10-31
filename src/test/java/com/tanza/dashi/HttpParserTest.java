@@ -1,7 +1,7 @@
 package com.tanza.dashi;
 
-import com.tanza.dashi.lib.LibConstants.Header;
-import com.tanza.dashi.lib.LibConstants.Method;
+import com.tanza.dashi.LibConstants.Header;
+import com.tanza.dashi.LibConstants.Method;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;

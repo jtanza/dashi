@@ -1,6 +1,6 @@
 package com.tanza.dashi;
 
-import com.tanza.dashi.lib.LibConstants.StatusCode;
+import com.tanza.dashi.LibConstants.StatusCode;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -27,6 +27,9 @@ class ChannelBuffer {
 
         int read;
         try {
+            if (!key.isValid()) {
+                return Optional.empty();
+            }
             read = ((SocketChannel) key.channel()).read(buffer);
         } catch (IOException e) {
             e.printStackTrace();

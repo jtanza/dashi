@@ -1,12 +1,11 @@
 package com.tanza.dashi;
 
-import com.tanza.dashi.lib.LibConstants.Method;
-import com.tanza.dashi.lib.Response;
+import com.tanza.dashi.LibConstants.Method;
 
 import java.util.concurrent.TimeUnit;
 
 public class Example {
-
+    
     public static void main(String[] args) {
         RequestDispatcher requestDispatcher = new RequestDispatcher()
             .addHandler(new RequestHandler(Method.PUT, "/users/{userId}", r -> Response.ok(r.getPathVariable("userId"))))

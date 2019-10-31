@@ -1,7 +1,7 @@
-package com.tanza.dashi.lib;
+package com.tanza.dashi;
 
-import com.tanza.dashi.RequestException;
-import com.tanza.dashi.lib.LibConstants.StatusCode;
+import com.tanza.dashi.LibConstants.StatusCode;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
@@ -11,23 +11,21 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
-import static com.tanza.dashi.lib.LibConstants.Header.CONTENT_LENGTH;
-import static com.tanza.dashi.lib.LibConstants.Header.DATE;
-import static com.tanza.dashi.lib.LibConstants.Header.SERVER;
-import static com.tanza.dashi.lib.LibConstants.Message.CRLF;
-import static com.tanza.dashi.lib.LibConstants.Message.DASHI_V;
-import static com.tanza.dashi.lib.LibConstants.Message.VERSION;
-import static com.tanza.dashi.lib.LibConstants.StatusCode.BAD_REQUEST;
-import static com.tanza.dashi.lib.LibConstants.StatusCode.INTERNAL_SERVER_ERROR;
-import static com.tanza.dashi.lib.LibConstants.StatusCode.NOT_FOUND;
-import static com.tanza.dashi.lib.LibConstants.StatusCode.OK;
+import static com.tanza.dashi.LibConstants.Header.CONTENT_LENGTH;
+import static com.tanza.dashi.LibConstants.Header.DATE;
+import static com.tanza.dashi.LibConstants.Header.SERVER;
+import static com.tanza.dashi.LibConstants.StatusCode.BAD_REQUEST;
+import static com.tanza.dashi.LibConstants.StatusCode.OK;
 
 /**
  * @author jtanza
  */
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode
 public class Response {
+    private static final String VERSION = "HTTP/1.1 ";
+    private static final String DASHI_V = "Dashi/0.0.1";
+    private static final String CRLF = "\r\n";
     private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss O");
 
     private final StatusCode statusCode;
@@ -50,20 +48,8 @@ public class Response {
         return new Response(BAD_REQUEST, new Headers(), body);
     }
 
-    public static Response notFound() {
-        return new Response(NOT_FOUND, new Headers(), null);
-    }
-
     public static Builder from(StatusCode statusCode) {
         return new Builder(statusCode);
-    }
-
-    public static Response from(Exception exception) {
-        if (exception instanceof RequestException) {
-            RequestException re = (RequestException) exception;
-            return new Response(re.getStatusCode(), new Headers(), re.getBody());
-        }
-        return new Response(INTERNAL_SERVER_ERROR, new Headers(), exception.getMessage());
     }
 
     private void addReqResponseHeaders(Headers headers) {

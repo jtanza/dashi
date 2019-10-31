@@ -1,4 +1,4 @@
-package com.tanza.dashi.lib;
+package com.tanza.dashi;
 
 import lombok.NonNull;
 
@@ -6,13 +6,6 @@ import lombok.NonNull;
  * @author jtanza
  */
 public interface LibConstants {
-
-    interface Message {
-        String VERSION = "HTTP/1.1 ";
-        String CRLF = "\r\n";
-        String SP = " ";
-        String DASHI_V = "Dashi/0.0.1";
-    }
 
     interface Header {
         String CONTENT_LENGTH = "Content-Length";

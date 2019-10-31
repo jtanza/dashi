@@ -1,7 +1,6 @@
 package com.tanza.dashi;
 
-import com.tanza.dashi.lib.LibConstants.Method;
-import com.tanza.dashi.lib.Headers;
+import com.tanza.dashi.LibConstants.Method;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,18 +18,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.tanza.dashi.lib.LibConstants.Header.CONTENT_LENGTH;
-import static com.tanza.dashi.lib.LibConstants.Header.HOST;
-import static com.tanza.dashi.lib.LibConstants.Header.TRANSFER_ENCODING;
-import static com.tanza.dashi.lib.LibConstants.Message.CRLF;
-import static com.tanza.dashi.lib.LibConstants.Message.SP;
+import static com.tanza.dashi.LibConstants.Header.CONTENT_LENGTH;
+import static com.tanza.dashi.LibConstants.Header.HOST;
+import static com.tanza.dashi.LibConstants.Header.TRANSFER_ENCODING;
 
 /**
  * @author jtanza
  */
-public class HttpParser {
+class HttpParser {
+    private static final String CRLF = "\r\n";
+    private static final String SP = " ";
 
-    public static Request parseRequest(String request) {
+    static Request parseRequest(String request) {
         String[] messageLines = request.split(CRLF);
         RequestLine requestLine = RequestLine.from(messageLines[0].split(SP));
 

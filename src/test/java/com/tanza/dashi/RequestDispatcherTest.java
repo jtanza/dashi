@@ -1,14 +1,13 @@
 package com.tanza.dashi;
 
-import com.tanza.dashi.lib.LibConstants.Method;
-import com.tanza.dashi.lib.Response;
+import com.tanza.dashi.LibConstants.Method;
 
 import org.junit.Test;
 
 import java.util.Optional;
 
-import static com.tanza.dashi.lib.LibConstants.StatusCode.NOT_FOUND;
-import static com.tanza.dashi.lib.LibConstants.StatusCode.NO_CONTENT;
+import static com.tanza.dashi.LibConstants.StatusCode.NOT_FOUND;
+import static com.tanza.dashi.LibConstants.StatusCode.NO_CONTENT;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 

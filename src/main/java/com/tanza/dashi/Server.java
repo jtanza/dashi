@@ -1,7 +1,5 @@
 package com.tanza.dashi;
 
-import com.tanza.dashi.lib.Response;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,6 +15,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.function.BiFunction;
+
+import static com.tanza.dashi.LibConstants.StatusCode.NOT_FOUND;
 
 /**
  * @author jtanza
@@ -68,24 +68,34 @@ public class Server {
     }
 
     private void readThenWrite(SelectionKey key) {
-        channelBuffer.readFromChannel(key).ifPresent(read -> {
-            Request request = Request.from(read);
-            requestDispatcher.getHandlerFor(request).ifPresentOrElse(
-                handler -> processRequestAsync(handler, key, request), respondNotFound(key)
-            );
-        });
+        try {
+            channelBuffer.readFromChannel(key).ifPresent(read -> {
+                Request request = Request.from(read);
+                requestDispatcher.getHandlerFor(request).ifPresentOrElse(
+                    handler -> processRequestAsync(handler, key, request),
+                    () -> writeAsync(key, Response.from(NOT_FOUND).build())
+                );
+            });
+        } catch (RequestException e) {
+            writeAsync(key, Response.from(e.getStatusCode()).body(e.getBody()).build());
+        }
     }
 
     private void processRequestAsync(RequestHandler handler, SelectionKey key, Request request) {
-        CompletableFuture.supplyAsync(() -> handlerWrapper().apply(request, handler), workerPool)
+        CompletableFuture.supplyAsync(() -> augmentedHandlerAction().apply(request, handler), workerPool)
             .thenAccept(response -> write(key, response))
             .thenAccept((c) -> Utils.closeConnection(key));
     }
 
+    private void writeAsync(SelectionKey key, Response response) {
+        CompletableFuture.runAsync(() -> write(key, response), workerPool);
+    }
+
     private static void write(SelectionKey key, Response response) {
         try {
-            SocketChannel channel = (SocketChannel) key.channel();
-            channel.write(response.toByteBuffer());
+            if (key.isValid()) {
+                ((SocketChannel) key.channel()).write(response.toByteBuffer());
+            }
         } catch (IOException e) {
             e.printStackTrace();
             Utils.closeConnection(key);
@@ -106,17 +116,17 @@ public class Server {
         }
     }
 
-    private Runnable respondNotFound(SelectionKey key) {
-        return () -> write(key, Response.notFound());
-    }
-
     /**
      * Mutates the {@link Request} with path variables computed with data derived from a
-     * {@link RequestHandler} before applying {@link RequestHandler#getAction()}
+     * {@link RequestHandler} before applying {@link RequestHandler#getAction()}.
+     *
+     * We delegate this mutation to be performed within the {@link RequestHandler#getAction()}
+     * execution context so that we can leverage our {@link Server#workerPool} and keep free
+     * our multiplexing thread.
      *
      * @return
      */
-    private static BiFunction<Request, RequestHandler, Response> handlerWrapper() {
+    private static BiFunction<Request, RequestHandler, Response> augmentedHandlerAction() {
         return (request, handler) -> {
             request.setPathVariables(handler);
             return handler.getAction().apply(request);
@@ -156,7 +166,6 @@ public class Server {
         public Server build() {
             return new Server(port, workerPool, requestDispatcher, new ChannelBuffer(maxFormSize));
         }
-
     }
 
     @Data

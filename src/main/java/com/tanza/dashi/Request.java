@@ -1,7 +1,6 @@
 package com.tanza.dashi;
 
-import com.tanza.dashi.lib.Headers;
-import com.tanza.dashi.lib.LibConstants.Method;
+import com.tanza.dashi.LibConstants.Method;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -70,7 +69,6 @@ public class Request {
         this.pathVariables = parsePathVariables(requestHandler.getPath());
     }
 
-    //TODO url encoding
     private Map<String, String> parsePathVariables(String path) {
         if (StringUtils.isEmpty(path)) {
             return Collections.emptyMap();

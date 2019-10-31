@@ -1,4 +1,4 @@
-package com.tanza.dashi.lib;
+package com.tanza.dashi;
 
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -7,14 +7,14 @@ import lombok.RequiredArgsConstructor;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.tanza.dashi.lib.LibConstants.Message.CRLF;
-
 /**
  * @author jtanza
  */
 @EqualsAndHashCode
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class Headers {
+    private static final String CRLF = "\r\n";
+
     private final Map<String, String> headers;
 
     public Headers() {

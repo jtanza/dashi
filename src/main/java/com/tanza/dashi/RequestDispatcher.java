@@ -1,8 +1,7 @@
 package com.tanza.dashi;
 
-import com.tanza.dashi.lib.LibConstants.Method;
+import com.tanza.dashi.LibConstants.Method;
 
-import com.tanza.dashi.lib.Response;
 import lombok.NonNull;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;

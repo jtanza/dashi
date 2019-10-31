@@ -1,7 +1,6 @@
 package com.tanza.dashi;
 
-import com.tanza.dashi.lib.LibConstants.Method;
-import com.tanza.dashi.lib.Response;
+import com.tanza.dashi.LibConstants.Method;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

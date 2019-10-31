@@ -1,6 +1,6 @@
 package com.tanza.dashi;
 
-import com.tanza.dashi.lib.LibConstants;
+import com.tanza.dashi.LibConstants.StatusCode;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -10,13 +10,13 @@ import lombok.RequiredArgsConstructor;
  */
 @Getter
 @RequiredArgsConstructor
-public class RequestException extends RuntimeException {
+class RequestException extends Exception {
     static final long serialVersionUID = 1;
 
-    private final LibConstants.StatusCode statusCode;
+    private final StatusCode statusCode;
     private final String body;
 
-    public static RequestException from(LibConstants.StatusCode statusCode) {
+    static RequestException from(StatusCode statusCode) {
         return new RequestException(statusCode, null);
     }
 }
