@@ -1,5 +1,6 @@
 package com.tanza.dashi;
 
+import com.tanza.dashi.HttpConstants.Header;
 import com.tanza.dashi.HttpConstants.StatusCode;
 import org.junit.Test;
 
@@ -76,9 +77,15 @@ public class ResponseTest {
         }
     }
 
-    //TODO
     @Test
     public void testHeaders() {
+        Response resp = Response.ok().header(Header.COOKIE, "$Version=99; Foo=bar;").build();
+        String[] splitResponse = resp.toString().split(Headers.CRLF);
+
+        assertEquals(5, splitResponse.length);
+        assertEquals("HTTP/1.1 200 OK", splitResponse[0]);
+        assertEquals("Cookie: $Version=99; Foo=bar;", splitResponse[1]);
+        assertEquals("Content-Length: 0", splitResponse[3]);
 
     }
 }

@@ -11,15 +11,19 @@ import lombok.NonNull;
 public interface HttpConstants {
 
     interface Header {
+        String ACCEPT = "Accept";
+        String CACHE_CONTROL = "Cache-Control";
         String CONTENT_LENGTH = "Content-Length";
-        String TRANSFER_ENCODING = "Transfer-Encoding";
-        String HOST = "Host";
+        String COOKIE = "Cookie";
         String DATE = "Date";
+        String ETAG = "ETag";
+        String HOST = "Host";
         String SERVER = "Server";
+        String TRANSFER_ENCODING = "Transfer-Encoding";
     }
 
     enum Method {
-        GET, HEAD, POST, DELETE, PUT, OPTIONS, PATCH;
+        DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT;
 
         public static Method from(@NonNull String method) {
             return Enum.valueOf(Method.class, method.trim().toUpperCase());

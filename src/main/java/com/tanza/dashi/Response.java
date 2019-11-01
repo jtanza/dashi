@@ -116,12 +116,12 @@ public class Response {
         private Pair<String, Integer> customStatusCode;
         private String body;
 
-        private Builder statusCode(StatusCode statusCode) {
+        private Builder statusCode(@NonNull StatusCode statusCode) {
             this.statusCode = statusCode;
             return this;
         }
 
-        private Builder statusCode(Pair<String, Integer> customStatusCode) {
+        private Builder statusCode(@NonNull Pair<String, Integer> customStatusCode) {
             this.customStatusCode = customStatusCode;
             return this;
         }
@@ -131,7 +131,7 @@ public class Response {
             return this;
         }
 
-        public Builder header(String header, String value) {
+        public Builder header(@NonNull String header, @NonNull String value) {
             this.headers.addHeader(header, value);
             return this;
         }

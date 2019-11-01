@@ -2,7 +2,6 @@ package com.tanza.dashi;
 
 import com.tanza.dashi.HttpConstants.Method;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -67,21 +66,5 @@ public class RequestTest {
             request.setPathVariables(handler);
             assertNull("bob", request.getPathVariable("userName"));
         }
-    }
-
-    @Ignore
-    @Test
-    public void testEncoded() {
-        Request request = Request.from(
-            "GET %2Ffoo%2F%C2%A3500%2Fbar%2FHello%20G%C3%BCnter HTTP/1.1\r\n" +
-                "Host: localhost:1024\r\n" +
-                "User-Agent: curl/7.54.0\r\n" +
-                "Accept: */*\r\n" +
-                "\r\n\r\n"
-        );
-
-        request.setPathVariables(stubRequestHandler("/foo/{pound}/bar/{phrase}"));
-        assertEquals("£500", request.getPathVariable("pound"));
-        assertEquals("Hello Günter", request.getPathVariable("phrase"));
     }
 }
