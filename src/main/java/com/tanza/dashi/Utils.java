@@ -6,9 +6,6 @@ import java.io.Reader;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
-/**
- * @author jtanza
- */
 class Utils {
 
     private Utils() {
@@ -28,12 +25,18 @@ class Utils {
                 builder.append(line);
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
         return builder.toString();
     }
 
+    /**
+     * @param key {@link SelectionKey} to close, along with its underlying {@link SocketChannel}
+     */
     static void closeConnection(SelectionKey key) {
+        if (key == null) {
+            return;
+        }
         SocketChannel channel = (SocketChannel) key.channel();
         key.cancel();
         try {

@@ -3,9 +3,12 @@ package com.tanza.dashi;
 import lombok.NonNull;
 
 /**
+ * Common constants used in interacting with HTTP
+ * request/response messages
+ *
  * @author jtanza
  */
-public interface Constants {
+public interface HttpConstants {
 
     interface Header {
         String CONTENT_LENGTH = "Content-Length";

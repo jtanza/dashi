@@ -8,34 +8,40 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Encapsulation of the internal representation of HTTP header fields.
+ * Used in both {@link Request} and {@link Response} contexts.
+ *
  * @author jtanza
  */
 @EqualsAndHashCode
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class Headers {
-    private static final String CRLF = "\r\n";
+class Headers {
+    static final String CRLF = "\r\n";
 
     private final Map<String, String> headers;
 
-    public Headers() {
+    Headers() {
         this.headers = new HashMap<>();
     }
 
-    public void addHeader(String header, String value) {
+    void addHeader(String header, String value) {
         headers.put(header, value);
     }
 
-    public String getValue(String header) {
+    String getValue(String header) {
         if (header == null) {
             return null;
         }
         return headers.get(header);
     }
 
-    public boolean containsHeader(String header) {
+    boolean containsHeader(String header) {
         return header != null && headers.containsKey(header);
     }
 
+    /**
+     * @return HTTP compliant representation of header fields
+     */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();

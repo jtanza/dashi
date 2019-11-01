@@ -1,6 +1,6 @@
 package com.tanza.dashi;
 
-import com.tanza.dashi.Constants.Method;
+import com.tanza.dashi.HttpConstants.Method;
 
 import org.junit.Ignore;
 import org.junit.Test;

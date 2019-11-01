@@ -1,6 +1,6 @@
 package com.tanza.dashi;
 
-import com.tanza.dashi.Constants.Method;
+import com.tanza.dashi.HttpConstants.Method;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
+ * Encapsulation of our internal representation of HTTP request messages.
+ *
  * @author jtanza
  */
 @Getter
@@ -30,13 +32,20 @@ public class Request {
     private final Headers headers;
     private final String body;
     private final List<Pair<String, String>> queryParameters;
-
     private Map<String, String> pathVariables;
 
+    /**
+     * @param request byte representation of an HTTP request message
+     * @return a fully formed {@link Request}.
+     */
     public static Request from(byte[] request) {
         return from(new String(request, StandardCharsets.UTF_8));
     }
 
+    /**
+     * @param request {@link String} representation of an HTTP request message
+     * @return a fully formed {@link Request}.
+     */
     public static Request from(String request) {
         return HttpParser.parseRequest(request);
     }

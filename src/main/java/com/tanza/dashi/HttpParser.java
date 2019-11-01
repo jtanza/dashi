@@ -1,6 +1,6 @@
 package com.tanza.dashi;
 
-import com.tanza.dashi.Constants.Method;
+import com.tanza.dashi.HttpConstants.Method;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,15 +18,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.tanza.dashi.Constants.Header.CONTENT_LENGTH;
-import static com.tanza.dashi.Constants.Header.HOST;
-import static com.tanza.dashi.Constants.Header.TRANSFER_ENCODING;
+import static com.tanza.dashi.HttpConstants.Header.CONTENT_LENGTH;
+import static com.tanza.dashi.HttpConstants.Header.HOST;
+import static com.tanza.dashi.HttpConstants.Header.TRANSFER_ENCODING;
+import static com.tanza.dashi.Headers.CRLF;
 
 /**
+ * Parses HTTP request messages strings into internal representations
+ * as {@link Request}s.
+ *
  * @author jtanza
  */
 class HttpParser {
-    private static final String CRLF = "\r\n";
     private static final String SP = " ";
 
     static Request parseRequest(String request) {

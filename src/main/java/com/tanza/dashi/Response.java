@@ -1,6 +1,6 @@
 package com.tanza.dashi;
 
-import com.tanza.dashi.Constants.StatusCode;
+import com.tanza.dashi.HttpConstants.StatusCode;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -14,20 +14,27 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
-import static com.tanza.dashi.Constants.Header.CONTENT_LENGTH;
-import static com.tanza.dashi.Constants.Header.DATE;
-import static com.tanza.dashi.Constants.Header.SERVER;
-import static com.tanza.dashi.Constants.StatusCode.BAD_REQUEST;
-import static com.tanza.dashi.Constants.StatusCode.OK;
+import static com.tanza.dashi.HttpConstants.Header.CONTENT_LENGTH;
+import static com.tanza.dashi.HttpConstants.Header.DATE;
+import static com.tanza.dashi.HttpConstants.Header.SERVER;
+import static com.tanza.dashi.HttpConstants.StatusCode.BAD_REQUEST;
+import static com.tanza.dashi.HttpConstants.StatusCode.OK;
+import static com.tanza.dashi.Headers.CRLF;
 
 /**
+ * A {@link Response} encapsulates the internal form of
+ * HTTP response messages.
+ *
+ * {@link Response}s can be built directly via {@link StatusCode}s
+ * or through references of an HTTP reason phrase/code combination
+ * via {@link Response#from(String, int)} in situations where an appropriate
+ * {@link StatusCode} may be missing.
+ *
  * @author jtanza
  */
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode
 public class Response {
-    static final String CRLF = "\r\n";
-
     private static final String VERSION = "HTTP/1.1 ";
     private static final String DASHI_V = "Dashi/0.0.1";
     private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss O");
@@ -98,7 +105,7 @@ public class Response {
         return body == null ? resp : resp + formatBody();
     }
 
-    public ByteBuffer toByteBuffer() {
+    ByteBuffer toByteBuffer() {
         return ByteBuffer.wrap(toString().getBytes());
     }
 

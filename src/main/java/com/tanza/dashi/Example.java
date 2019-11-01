@@ -1,6 +1,6 @@
 package com.tanza.dashi;
 
-import com.tanza.dashi.Constants.Method;
+import com.tanza.dashi.HttpConstants.Method;
 
 import java.util.concurrent.TimeUnit;
 
@@ -22,6 +22,6 @@ public class Example {
             .addResourcePath("/web");
 
 
-        Server.builder(requestDispatcher).build().serve();
+        HttpServer.builder(requestDispatcher).build().serve();
     }
 }

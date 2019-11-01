@@ -1,13 +1,13 @@
 package com.tanza.dashi;
 
-import com.tanza.dashi.Constants.Method;
+import com.tanza.dashi.HttpConstants.Method;
 
 import org.junit.Test;
 
 import java.util.Optional;
 
-import static com.tanza.dashi.Constants.StatusCode.NOT_FOUND;
-import static com.tanza.dashi.Constants.StatusCode.NO_CONTENT;
+import static com.tanza.dashi.HttpConstants.StatusCode.NOT_FOUND;
+import static com.tanza.dashi.HttpConstants.StatusCode.NO_CONTENT;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 

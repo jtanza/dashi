@@ -1,6 +1,6 @@
 package com.tanza.dashi;
 
-import com.tanza.dashi.Constants.Method;
+import com.tanza.dashi.HttpConstants.Method;
 
 import lombok.NonNull;
 import lombok.Value;
@@ -24,6 +24,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
+ * A {@link RequestDispatcher} allocates {@link RequestHandler}s to
+ * incoming client {@link Request}s as they are received over the network.
+ *
+ * A {@link RequestDispatcher} allows for users to quickly generate an HTTP server from
+ * a collection of self contained {@link RequestHandler}s.
+ *
  * @author jtanza
  */
 public class RequestDispatcher {
@@ -36,6 +42,12 @@ public class RequestDispatcher {
         this.variableHandlers = new ArrayList<>();
     }
 
+    /**
+     * A convenience method instantiating a {@link RequestDispatcher} from a collection of
+     * {@link RequestHandler}s
+     *
+     * @param handlers
+     */
     public RequestDispatcher(Collection<RequestHandler> handlers) {
         this.handlers = handlers.stream().collect(Collectors.toMap(
             h -> new ResourceId(h.getMethod(), h.getPath()), Function.identity())

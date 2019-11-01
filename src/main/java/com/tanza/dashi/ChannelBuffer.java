@@ -1,6 +1,6 @@
 package com.tanza.dashi;
 
-import com.tanza.dashi.Constants.StatusCode;
+import com.tanza.dashi.HttpConstants.StatusCode;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -9,6 +9,12 @@ import java.nio.channels.SocketChannel;
 import java.util.Optional;
 
 /**
+ * Wrapper around a {@link ByteBuffer} used when reading from
+ * client {@link SocketChannel}s.
+ *
+ * Note that the underlying {@link #buffer} is stored off-heap via
+ * {@link ByteBuffer#allocateDirect(int)}
+ *
  * @author jtanza
  */
 class ChannelBuffer {
