@@ -11,6 +11,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -42,6 +43,7 @@ public class HttpServer implements Server {
         return new Builder(requestDispatcher);
     }
 
+    @Override
     public void serve() {
         ServerConnection serverConnection = ServerConnection.openConnection(port);
         selectAndServe(serverConnection.getSelector());
@@ -78,13 +80,15 @@ public class HttpServer implements Server {
         try {
             channelBuffer.readFromChannel(key).ifPresent(read -> {
                 Request request = Request.from(read);
-                requestDispatcher.getHandlerFor(request).ifPresentOrElse(
-                    handler -> handleRequestAsync(handler, key, request),
-                    () -> writeAsync(key, Response.from(NOT_FOUND).build())
-                );
+                Optional<RequestHandler> handler = requestDispatcher.getHandlerFor(request);
+                if (handler.isPresent()) {
+                    handleRequestAsync(handler.get(), key, request);
+                } else {
+                    writeAsync(key, Response.from(NOT_FOUND).build());
+                }
             });
         } catch (RequestException e) {
-            writeAsync(key, Response.from(e.getStatusCode()).body(e.getBody()).build());
+            writeAsync(key, Response.from(e));
         }
     }
 

@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -83,7 +84,7 @@ public class Request {
             return Collections.emptyMap();
         }
 
-        List<String> pathSegments = Arrays.stream(url.getPath().split("/")).map(p -> URLDecoder.decode(p, StandardCharsets.UTF_8)).collect(Collectors.toList());
+        List<String> pathSegments = Arrays.stream(url.getPath().split("/")).map(Request::decodeUrl).collect(Collectors.toList());
         String[] variablePathSegments = path.split("/");
 
         Map<String, String> pathVariables = new HashMap<>();
@@ -98,5 +99,13 @@ public class Request {
 
     private static String extractVarName(String pathVariable) {
         return pathVariable.substring(1, pathVariable.lastIndexOf("}"));
+    }
+
+    private static String decodeUrl(String url) {
+        try {
+            return URLDecoder.decode(url, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

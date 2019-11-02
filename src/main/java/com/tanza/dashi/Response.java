@@ -68,6 +68,10 @@ public class Response {
         return new Builder().statusCode(Pair.of(reasonPhrase, code));
     }
 
+    static Response from(@NonNull RequestException e) {
+        return new Response(e.getStatusCode(), new Headers(), null, e.getBody());
+    }
+
     private void addReqResponseHeaders(Headers headers) {
         if (!headers.containsHeader(CONTENT_LENGTH)) {
             headers.addHeader(CONTENT_LENGTH, getContentLength());

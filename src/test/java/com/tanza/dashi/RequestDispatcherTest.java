@@ -22,9 +22,12 @@ public class RequestDispatcherTest {
             .addHandler(new RequestHandler("/", r -> Response.ok("FOOBAR")))
             .addHandler(new RequestHandler("/query", r -> Response.ok("BAZBUCK")));
 
+
+        Optional<RequestHandler> rootHandler = dispatch.getHandlerFor(Method.GET, "/");
+        assertTrue(rootHandler.isPresent());
         assertEquals(
             "Handler for / did not return correct response",
-            Response.ok("FOOBAR"), dispatch.getHandlerFor(Method.GET, "/").orElseThrow().getAction().apply(any(Request.class))
+            Response.ok("FOOBAR"), rootHandler.get().getAction().apply(any(Request.class))
         );
         assertNotNull(
             "No default handler present",
@@ -32,9 +35,11 @@ public class RequestDispatcherTest {
         );
 
         dispatch.addHandler(new RequestHandler("/ping", r -> Response.ok("PONG")));
+        Optional<RequestHandler> getHandler = dispatch.getHandlerFor(Method.GET, "/ping");
+        assertTrue(getHandler.isPresent());
         assertEquals(
             "Handler for /ping did not return correct response",
-            Response.ok("PONG"), dispatch.getHandlerFor(Method.GET, "/ping").orElseThrow().getAction().apply(any(Request.class))
+            Response.ok("PONG"), getHandler.get().getAction().apply(any(Request.class))
         );
     }
 
@@ -46,14 +51,18 @@ public class RequestDispatcherTest {
             .addHandler(new RequestHandler(Method.PUT,    userResource, r -> Response.ok().build()))
             .addHandler(new RequestHandler(Method.DELETE, userResource, r -> Response.from(NOT_FOUND).build()));
 
+        Optional<RequestHandler> userResourcePutHandler = dispatch.getHandlerFor(Method.PUT, userResource);
+        assertTrue(userResourcePutHandler.isPresent());
         assertEquals(
             "PUT Handler for " + dispatch + " did not return correct response",
-            Response.ok().build(), dispatch.getHandlerFor(Method.PUT, userResource).orElseThrow().getAction().apply(any(Request.class))
+            Response.ok().build(), userResourcePutHandler.get().getAction().apply(any(Request.class))
         );
 
+        Optional<RequestHandler> userResourceDeleteHandler = dispatch.getHandlerFor(Method.DELETE, userResource);
+        assertTrue(userResourceDeleteHandler.isPresent());
         assertEquals(
             "DELETE Handler for " + dispatch + " did not return correct response",
-            Response.from(NOT_FOUND).build(), dispatch.getHandlerFor(Method.DELETE, userResource).orElseThrow().getAction().apply(any(Request.class))
+            Response.from(NOT_FOUND).build(), userResourceDeleteHandler.get().getAction().apply(any(Request.class))
         );
     }
 
