@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Encapsulation of our internal representation of HTTP request messages.
+ * Encapsulation of the representation of HTTP request messages.
  *
  * @author jtanza
  */

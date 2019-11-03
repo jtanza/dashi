@@ -6,16 +6,18 @@ import lombok.NonNull;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,9 +28,6 @@ import java.util.stream.Collectors;
 /**
  * A {@link RequestDispatcher} allocates {@link RequestHandler}s to
  * incoming client {@link Request}s as they are received over the network.
- *
- * A {@link RequestDispatcher} allows for users to quickly generate an HTTP server from
- * a collection of self contained {@link RequestHandler}s.
  *
  * @author jtanza
  */
@@ -156,15 +155,16 @@ public class RequestDispatcher {
         if (resourceUrl == null) {
             throw new AssertionError("Could not locate resource from " + resourcePath);
         }
-        try {
-            return Files.list(Paths.get(resourceUrl.toURI())).filter(Files::isRegularFile).map(formatFileName()).collect(Collectors.toList());
+        try (FileSystem fs = FileSystems.newFileSystem(resourceUrl.toURI(), Collections.emptyMap())) {
+            return Files.walk(Paths.get(resourceUrl.toURI()))
+                .filter(Files::isRegularFile).map(formatFileName(resourcePath)).collect(Collectors.toList());
         } catch (IOException | URISyntaxException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static Function<Path, String> formatFileName() {
-        return p -> File.separator + p.toFile().getName();
+    private static Function<Path, String> formatFileName(@NonNull String resourcePath) {
+        return p -> StringUtils.difference(resourcePath, p.toString());
     }
 
     /**
