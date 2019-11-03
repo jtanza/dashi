@@ -45,11 +45,13 @@ public class HttpServer implements Server {
 
     @Override
     public void serve() {
-        ServerConnection serverConnection = ServerConnection.openConnection(port);
-        selectAndServe(serverConnection.getSelector());
+        new Thread(this::listenAndServe).start();
     }
 
-    private void selectAndServe(Selector selector) {
+    private void listenAndServe() {
+        ServerConnection serverConnection = ServerConnection.openConnection(port);
+        Selector selector = serverConnection.getSelector();
+
         while (true) {
             try {
                 selector.select(SELECTOR_TIME_OUT_MS);
