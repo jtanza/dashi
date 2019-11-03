@@ -11,7 +11,14 @@ public interface Server {
 
     /**
      * Service client connections as they are received
-     * over a network.
+     * over the network.
      */
     void serve();
+
+    /**
+     * Closes any open socket connections while releasing
+     * any additional threads which may have been spawned
+     * as part of this {@link Server}s execution context.
+     */
+    void stop();
 }

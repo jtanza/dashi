@@ -1,8 +1,8 @@
 package com.tanza.dashi;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -13,7 +13,7 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.BiFunction;
 
@@ -30,12 +30,13 @@ import static com.tanza.dashi.HttpConstants.StatusCode.NOT_FOUND;
  *
  * @author jtanza
  */
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class HttpServer implements Server {
     private static final int SELECTOR_TIME_OUT_MS = 1_000;
 
     private final int port;
-    private final Executor workerPool;
+    private final ExecutorService workerPool;
+    private final ExecutorService serverThread;
     private final RequestDispatcher requestDispatcher;
     private final ChannelBuffer channelBuffer;
 
@@ -43,16 +44,37 @@ public class HttpServer implements Server {
         return new Builder(requestDispatcher);
     }
 
+    /**
+     * Opens a {@link ServerSocketChannel} on {@link #port} and
+     * serves incoming HTTP requests.
+     */
     @Override
     public void serve() {
-        new Thread(this::listenAndServe).start();
+        serverThread.execute(() -> {
+            ServerConnection connection = ServerConnection.openConnection(port);
+            while (!Thread.interrupted()) {
+                listenAndServe(connection.getSelector());
+            }
+            connection.close();
+        });
     }
 
-    private void listenAndServe() {
-        ServerConnection serverConnection = ServerConnection.openConnection(port);
-        Selector selector = serverConnection.getSelector();
+    /**
+     * Sends interrupts to both our {@link ServerSocketChannel} thread
+     * and to our {@link #workerPool}, effectively stopping the servicing
+     * of any additional HTTP requests on this {@link HttpServer}.
+     *
+     * Note, this method <em>does not</em> wait for any active connections to
+     * complete before shutting down.
+     */
+    @Override
+    public void stop() {
+        workerPool.shutdownNow();
+        serverThread.shutdownNow();
+    }
 
-        while (true) {
+    private void listenAndServe(Selector selector) {
+        while (selector.isOpen()) {
             try {
                 selector.select(SELECTOR_TIME_OUT_MS);
                 Iterator<SelectionKey> iter = selector.selectedKeys().iterator();
@@ -61,7 +83,7 @@ public class HttpServer implements Server {
                     iter.remove();
                     serviceSocketEvent(selector, key);
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -149,11 +171,11 @@ public class HttpServer implements Server {
     public static class Builder {
         private static final int DEFAULT_PORT = 80;
         private static final int DEFAULT_MAX_READ = 1024 * 500;
-        private static final Executor DEFAULT_THREAD_POOL = Executors.newCachedThreadPool();
+        private static final ExecutorService DEFAULT_THREAD_POOL = Executors.newCachedThreadPool();
 
         private int port = DEFAULT_PORT;
         private int maxFormSize = DEFAULT_MAX_READ;
-        private Executor workerPool = DEFAULT_THREAD_POOL;
+        private ExecutorService workerPool = DEFAULT_THREAD_POOL;
 
         private final RequestDispatcher requestDispatcher;
 
@@ -171,13 +193,13 @@ public class HttpServer implements Server {
             return this;
         }
 
-        public Builder workerPool(Executor workerPool) {
+        public Builder workerPool(ExecutorService workerPool) {
             this.workerPool = workerPool;
             return this;
         }
 
         public HttpServer build() {
-            return new HttpServer(port, workerPool, requestDispatcher, new ChannelBuffer(maxFormSize));
+            return new HttpServer(port, workerPool, Executors.newSingleThreadExecutor(), requestDispatcher, new ChannelBuffer(maxFormSize));
         }
     }
 
@@ -197,6 +219,19 @@ public class HttpServer implements Server {
                 return new ServerConnection(selector, serverSocket);
             } catch (IOException e) {
                 throw new RuntimeException(e);
+            }
+        }
+
+        void close() {
+            try {
+                if (selector != null) {
+                    selector.close();
+                }
+                if (serverSocket != null) {
+                    serverSocket.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
