@@ -6,10 +6,11 @@ import lombok.NonNull;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
  * @author jtanza
  */
 public class RequestDispatcher {
+    private static final String JAR = "jar";
 
     private final Map<ResourceId, RequestHandler> handlers;
     private final List<RequestHandler> variableHandlers;
@@ -150,14 +152,22 @@ public class RequestDispatcher {
         ).collect(Collectors.toList());
     }
 
+    /**
+     * Scans for resource file names. Handles scenarios where resources are
+     * either part of a JAR file or within the regular FS.
+     */
     private List<String> scanForResources(@NonNull String resourcePath) {
-        URL resourceUrl = this.getClass().getResource(resourcePath);
-        if (resourceUrl == null) {
-            throw new AssertionError("Could not locate resource from " + resourcePath);
-        }
-        try (FileSystem fs = FileSystems.newFileSystem(resourceUrl.toURI(), Collections.emptyMap())) {
-            return Files.walk(Paths.get(resourceUrl.toURI()))
-                .filter(Files::isRegularFile).map(formatFileName(resourcePath)).collect(Collectors.toList());
+        try {
+            List<String> files;
+            URI resourceUri = this.getClass().getResource(resourcePath).toURI();
+            if (resourceUri.getScheme().equals(JAR)) {
+                FileSystem fs = FileSystems.newFileSystem(resourceUri, Collections.emptyMap());
+                files = Files.list(Paths.get(resourceUri)).filter(Files::isRegularFile).map(formatFileName(resourcePath)).collect(Collectors.toList());
+                fs.close();
+            } else {
+                files = Files.list(Paths.get(resourceUri)).filter(Files::isRegularFile).map(formatFileName()).collect(Collectors.toList());
+            }
+            return files;
         } catch (IOException | URISyntaxException e) {
             throw new RuntimeException(e);
         }
@@ -165,6 +175,10 @@ public class RequestDispatcher {
 
     private static Function<Path, String> formatFileName(@NonNull String resourcePath) {
         return p -> StringUtils.difference(resourcePath, p.toString());
+    }
+
+    private static Function<Path, String> formatFileName() {
+        return p -> File.separator + p.toFile().getName();
     }
 
     /**
