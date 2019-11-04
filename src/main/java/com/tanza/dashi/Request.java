@@ -62,6 +62,10 @@ public class Request {
         return pathVariables == null ? null : pathVariables.get(varName);
     }
 
+    void setPathVariables(@NonNull RequestHandler requestHandler) {
+        this.pathVariables = parsePathVariables(requestHandler.getPath());
+    }
+
     /**
      * Extracts URL path variables, mapping the values from slugs provided in
      * {@link RequestHandler#getPath()}.
@@ -72,13 +76,7 @@ public class Request {
      * <code>/users/123/orders/456</code>
      * will yield:
      * <code>userId:123,orderId:456</code>
-     *
-     * @param requestHandler
      */
-    void setPathVariables(@NonNull RequestHandler requestHandler) {
-        this.pathVariables = parsePathVariables(requestHandler.getPath());
-    }
-
     private Map<String, String> parsePathVariables(String path) {
         if (StringUtils.isEmpty(path)) {
             return Collections.emptyMap();

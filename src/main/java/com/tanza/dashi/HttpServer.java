@@ -183,16 +183,28 @@ public class HttpServer implements Server {
             this.requestDispatcher = requestDispatcher;
         }
 
+        /**
+         * @param port to open this {@link HttpServer} on.
+         * @return
+         */
         public Builder port(int port) {
             this.port = port;
             return this;
         }
 
+        /**
+         * @param maxFormSize in bytes.
+         * @return
+         */
         public Builder maxFormSize(int maxFormSize) {
             this.maxFormSize = maxFormSize;
             return this;
         }
 
+        /**
+         * @param workerPool {@link ExecutorService} in which request processing is carried out.
+         * @return
+         */
         public Builder workerPool(ExecutorService workerPool) {
             this.workerPool = workerPool;
             return this;
