@@ -26,7 +26,7 @@ Please note that this project is still **a work in progress**, and as such the A
 
 ### Examples
 
-Instantiating `RequestDispather`s is pretty straight forward and concise with chained method invocation:
+Instantiating `RequestDispatcher`s is pretty straight forward and concise with chained method invocation:
 
 ```
 String resourcePath = "/your-path";
