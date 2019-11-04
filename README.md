@@ -29,10 +29,10 @@ Please note that this project is still **a work in progress**, and as such the A
 Instantiating `RequestDispather`s is pretty straight forward and concise with chained method invocation:
 
 ```
-String usersResource = "/your-path";
+String resourcePath = "/your-path";
 RequestDispatcher requestDispatcher = new RequestDispatcher()
-	.addHandler(new RequestHandler(GET,    userResource, r -> Response.ok().build()))
-	.addHandler(new RequestHandler(DELETE, userResource, r -> Response.from(NOT_CONTENT).build()));
+	.addHandler(new RequestHandler(GET,    resourcePath, r -> Response.ok().build()))
+	.addHandler(new RequestHandler(DELETE, resourcePath, r -> Response.from(GONE).build()));
 ```
 
 Path variables are easily configurable:
