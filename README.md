@@ -1,8 +1,8 @@
 # Dashi
 
-Dashi is a small, embedded HTTP server running on the JVM. It is single-threaded, asynchronous and designed to be super simple to use.  It is not for production use (yet!) but lends itself quite nicely to rapid prototyping and usage in test environments.
+Dashi is a small, embedded HTTP server running on the JVM. It is single-threaded, event-driven, asynchronous and simple to use. It is not for production use (yet!) but lends itself quite nicely to rapid prototyping and usage in test environments.
 
-Getting a server up and running is as simple as:
+Getting a server up and running is as quick as:
 
 ```
 RequestHandler handler = new RequestHandler("/ping", r -> Response.ok("pong"));
@@ -20,9 +20,9 @@ $ mvn clean install
 
 ### API
 
-The Dashi API is built around the `RequestDispatcher`. It's design allows for users to quickly generate an HTTP server from a collection of self contained handlers without having to spend time on configurations. Below are a few examples of the features offered.  
+The Dashi API is built around the `RequestDispatcher`. Its design allows for users to quickly generate an HTTP server from a collection of self contained handlers. Below are a few examples of the features offered.  
 
-Please note that this project is still **a work in progress**, and as such the API may be subject to change. Any and all feedback is welcomed! Be sure to refer to the [wiki](https://github.com/jtanza/dashi/wiki) for the full project documentation.  
+Please note that this project is still **a work in progress**, and as such the API may be subject to change. Be sure to refer to the [wiki](https://github.com/jtanza/dashi/wiki) for the full project documentation. Any and all feedback is welcomed!
 
 ### Examples
 
@@ -60,7 +60,7 @@ HttpServer.builder(dispatcher).workerPool(Executors.newSingleThreadExecutor()).b
 
 ### Design
  
-Dashi is built heavily around `java.nio` and strives to be as resource efficient as possible. The thread-per-socket-connection model is abandoned in favor of readiness selection to multiplex requests from all client connections within a single thread. The servicing of ready requests however is assigned to a separate pool of worker threads, decoupling network I/O from the processing of received data. 
+Dashi is built heavily around `java.nio` and strives to be as resource efficient as possible. The thread-per-socket-connection model is abandoned in favor of readiness selection to multiplex requests from all client connections within a single thread. The servicing of ready requests however is assigned to a separate pool of worker threads, decoupling network I/O from the processing of received data. The handling of incoming HTTP requests from a user's perspective is intentionally simple however: user's receive a `Request` and are expected to return a `Response`. It is contained entirely in a method of the form `Function<Request, Response>`.
 
 ### Benchmarking 
 
