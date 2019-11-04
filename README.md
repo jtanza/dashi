@@ -20,7 +20,9 @@ $ mvn clean install
 
 ### API
 
-The Dashi API is built around the `RequestDispatcher`. It's design allows for users to quickly generate an HTTP server from a collection of self contained handlers without having to spend time on configurations. Below are a few examples of the features offered.  Please note that this project is still a work in progress, and as such the API may be subject to change. Any and all feedback is welcomed. Be sure to refer to the [wiki](https://github.com/jtanza/dashi/wiki) for the full project documentation.  
+The Dashi API is built around the `RequestDispatcher`. It's design allows for users to quickly generate an HTTP server from a collection of self contained handlers without having to spend time on configurations. Below are a few examples of the features offered.  
+
+Please note that this project is still **a work in progress**, and as such the API may be subject to change. Any and all feedback is welcomed! Be sure to refer to the [wiki](https://github.com/jtanza/dashi/wiki) for the full project documentation.  
 
 ### Examples
 
