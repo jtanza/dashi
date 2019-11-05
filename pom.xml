@@ -19,6 +19,21 @@
     </license>
   </licenses>
 
+  <developers>
+    <developer>
+      <name>John Tanza</name>
+      <email>johntanza@gmail.com</email>
+      <organization>John Tanza</organization>
+      <organizationUrl>http://www.tanza.cc</organizationUrl>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:git://github.com/jtanza/dashi.git</connection>
+    <developerConnection>scm:git:ssh://github.com:jtanza/dashi.git</developerConnection>
+    <url>https://github.com/jtanza/dashi/tree/master</url>
+  </scm>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
